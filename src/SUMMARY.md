@@ -1,3 +1,5 @@
 # Summary
-
-- [Chapter 1](./chapter_1.md)
+# Data Acquisition
+- [Onboading](./dac_onboarding.md)
+# Firmware
+- [Onboarding](./firmware_onboarding.md)
