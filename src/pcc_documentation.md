@@ -1,4 +1,10 @@
 # Subsystem + Purpose (Anna)
+# Pre-Charge Circuit
+
+---
+
+The pre-charge circuit is a subsystem that ensures 
+
 
 # Hardware
 ## Inputs 
