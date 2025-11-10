@@ -11,13 +11,17 @@ The pre-charge circuit is a subsystem that ensures that the accumulator (battery
 ## Inputs
 
 TS+/-: positive and negative terminals of the tractive system
-B+_in: positive terminal of accumulator
+IR+/-: TS-side AIR terminals connecting to the accumulator
+B+_in: positive terminal AIR+, connected to the positive terminal of the accumulator
 Shutdown_in: active high shutdown signal that triggers safe discharging of tractive system
 
 ## Outputs
 
 Shutdown_in: propagates the shutdown signal to other circuits
+<<<<<<< Updated upstream
 IR+\_GND: (unsure)
+=======
+>>>>>>> Stashed changes
 CANH/CANL: for communication purposes with other modules
 
 ## How It Works
