@@ -45,51 +45,30 @@ As mentioned in HV, the PCC is constantly reading the accumulator voltage and tr
 
 ### main.cpp
 
-#### void setup()
+**void setup()**: Initializes GPIO pins and the precharge system.
 
-Initializes GPIO pins and the precharge system.
-
-#### void threadMain()
-
-Continuously reads accumulator voltage and tractive system voltage and switches between the four states based on corresponding conditions.
+**void threadMain()**: Continuously reads accumulator voltage and tractive system voltage and switches between the four states based on corresponding conditions.
 
 ### precharge.cpp
 
 Defines states creates low pass filter.
 
-#### getFrequency(int pin)
+**getFrequency(int pin)**: Gets frequency of a square wave signal from a GPIO pin.
 
-Gets frequency of a square wave signal from a GPIO pin.
+**getVoltage(int pin)**: Converts the frequency into voltage for accumulator or tractive system GPIO pins.
 
-#### getVoltage(int pin)
+**prechargeInit()**: Initializes the mutex and precharge task.
 
-Converts the frequency into voltage for accumulator or tractive system GPIO pins.
+**prechargeTask(void \*pvParameters)**: Handles the state machine and status updates.
 
-#### prechargeINIT()
+**void standby(), void precharge(), void running(), void errorState()**: See General Overview.
+**float getTSVoltage()**: Gets the tractive system voltage.
 
-Initializes the mutex and precharge task.
+**float getAccumulatorVoltage()**: Gets the accumulator voltage.
 
-#### prechargeTask(void \*pvParameters)
+**PrechargeState getPrechargeState()**: Returns the current precharge state (undefined, standby, precharge, online, or error).
 
-Handles the state machine and status updates.
-
-#### void standby(), void precharge(), void running(), void errorState(). See General Overview.
-
-#### float getTSVoltage()
-
-Gets the tractive system voltage.
-
-#### float getAccumulatorVoltage()
-
-Gets the accumulator voltage.
-
-#### PrechargeState getPrechargeState()
-
-Returns the current precharge state (undefined, standby, precharge, online, or error).
-
-#### getPrechargeError()
-
-Returns current error information as an error code.
+**getPrechargeError()**: Returns current error information as an error code.
 
 ### gpio.cpp
 
