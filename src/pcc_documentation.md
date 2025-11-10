@@ -11,7 +11,7 @@ The pre-charge circuit is a subsystem that ensures that the accumulator (battery
 ## Inputs
 
 TS+/-: positive and negative terminals of the tractive system
-B+\_in: positive terminal of accumulator
+B+_in: positive terminal of accumulator
 Shutdown_in: active high shutdown signal that triggers safe discharging of tractive system
 
 ## Outputs
