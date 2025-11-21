@@ -1,6 +1,17 @@
 ## Fimrware System Architecture
  <!-- This is a comment that will not be rendered in HTML output. -->
 ```mermaid
+---
+config:
+  theme: 'base'
+  themeVariables:
+    primaryColor: '#ffffffff'
+    primaryTextColor: '#000000ff'
+    primaryBorderColor: '#17007cff'
+    lineColor: '#000000ff'
+    secondaryColor: '#f3f3f3ff'
+    tertiaryColor: '#f3f3f3ff'
+---
 flowchart BT
     %% This is a comment for the entire diagram
     subgraph CANbus
@@ -10,7 +21,6 @@ flowchart BT
             BC(Battery Charger)
             PCC(PCC - Teensy 4.0)
         end
-
 
         subgraph empty[" "]
             CCM(CCM - Teensy 4.1)
@@ -28,10 +38,10 @@ flowchart BT
 
 
         %%CAN LOOP1
-        BMS <--> BC <--> PCC <--> CCM
+        BMS <--> |CAN1| BC <--> |CAN1| PCC <--> |CAN1| CCM
 
         %%CANLOOP2
-        INV<-->CCM<-->RPI
+        INV<--> |CAN2|CCM<--> |CAN2|RPI
     end
 
 
