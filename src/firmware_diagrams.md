@@ -1,25 +1,65 @@
-## System Architecture
+## Fimrware System Architecture
+ <!-- This is a comment that will not be rendered in HTML output. -->
 ```mermaid
-flowchart TD
-    B(Brake Sensors) -->|Analog| SC(["<a href='https://github.com/AlistairKeiller/FSAE/tree/master/fsae-vehicle-fw' target='_blank'>Teensy/Speed Controller</a>"])
-    L(Linear Potentiometers) -->|Analog| SC
-    PI(Pedal Input) -->|Analog| SC
-    O(Orion BMS) -->|CAN| Pi
-    %% OI(Omni Inverter) -->|CAN| Pi
-    SC(Teensy Omni Speed Controller) -->|CAN| Pi
-    IMU(MPU6050 IMU) -->|I2C| SC
-    GPS(NEO-6M GPS) -->|UART| SC
-    IMS(Elcon Charger) -->|CAN| Pi
-    IMS(Elcon Charger) <-->|CAN| O
-    SC(["<a href='https://github.com/AlistairKeiller/FSAE/tree/master/fsae-vehicle-fw' target='_blank'>Teensy/Speed Controller</a>"]) <-->|CAN| OI(Omni Inverter)
-    subgraph Pi[Raspberry Pi System]
-        R(["<a href='https://github.com/AlistairKeiller/FSAE/tree/master/fsae-raspi' target='_blank'>Raspi Logger</a>"]) -->|HTTP| I(InfluxDB)
-        R -->|MQTT| D(["<a href='https://github.com/AlistairKeiller/FSAE/tree/master/fsae-dashboard' target='_blank'>Raspi Dashboard</a>"])
+flowchart BT
+    %% This is a comment for the entire diagram
+    subgraph CANbus
+
+        subgraph CAN1
+            BMS(Orion BMS 2)
+            BC(Battery Charger)
+            PCC(PCC - Teensy 4.0)
+        end
+
+
+        subgraph empty[" "]
+            CCM(CCM - Teensy 4.1)
+            RPI(Raspberry Pi)
+        end
+
+        style empty stroke-width:0px
+
+
+        subgraph CAN2
+            INV(OMNI Intervter)
+        end
+
+        CAN1~~~empty~~~CAN2
+
+
+        %%CAN LOOP1
+        BMS <--> BC <--> PCC <--> CCM
+
+        %%CANLOOP2
+        INV<-->CCM<-->RPI
     end
-    subgraph Graphana[Wireless Grafana]
-        I -->|HTTP| F(Full Histoy Preview)
-        R -->|MQTT| P(Real Time Preview)
-    end
+
+
+
+        subgraph Analog[Analog]
+                B(Brake Sensors)
+                A(Pedal Position Sensors)
+                LPOT(Suspension Travel Sensors)
+                TR(Thermistors)
+        end
+
+        subgraph PWM[PWM]
+            W(WheelSpeed Sensors)
+            FP(Fans & Pumps)
+            SP(Speaker & Amp)
+        end
+        subgraph MISC[Digital]
+            RTM(Ready To Move Button)
+            BL(Brake Light)
+        end
+
+        Analog~~~PWM~~~MISC
+
+        Analog --> CCM
+        PWM --> CCM
+        MISC -->CCM
+
+
 ```
 
 ## State Machine
