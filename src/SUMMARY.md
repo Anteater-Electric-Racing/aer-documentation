@@ -1,6 +1,26 @@
 # Summary
 # Data Acquisition
 - [Onboarding](./dac_onboarding.md)
+<!--temporary structure-->
 # Firmware
-- [Onboarding](./firmware_onboarding.md)
-- [Diagrams](./firmware_diagrams.md)
+- [Onboarding](./firmware/onboarding.md)
+- [System Architecture](./firmware/sysarchitecture.md)
+- [CCM](./firmware/ccm/ccm.md)
+    - [Peripherals](./firmware/ccm/peripherals.md)
+        - [Digital I/O]()
+        - [Analog I/O]()
+        - [CAN]()
+    - [Vehicle Control](./firmware/ccm/vehicle.md)
+        - [Motor/Inverter]()
+        - [Faults]()
+    - [Tasks & Scheduling](./firmware/ccm/threads.md)
+        - [Watchdog]()
+        - [FreeRTOS Implementation]()
+    - [Telemetry](./firmware/ccm/telemetry.md)
+- [PCC](./firmware/pcc/pcc.md)
+    - [Perhipherals](./firmware/pcc/peripherals.md)
+        - [Digital I/O]()
+        - [Analog I/O]()
+        - [CAN]()
+    - [Tasks & FreeRTOS](./firmware/pcc/threads.md)
+    - [Telemetry](./firmware/pcc/telemetry.md)

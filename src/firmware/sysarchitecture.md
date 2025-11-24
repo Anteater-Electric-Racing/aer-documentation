@@ -1,5 +1,5 @@
-## Fimrware System Architecture
- <!-- This is a comment that will not be rendered in HTML output. -->
+## System Architecture
+<!--test holding of diagrams-->
 ```mermaid
 ---
 config:
@@ -68,9 +68,24 @@ flowchart BT
         Analog --> CCM
         PWM --> CCM
         MISC -->CCM
-
-
 ```
 
+Test pargraph
+
+
 ## State Machine
+```mermaid
+---
+title: Simple sample
+---
+stateDiagram-v2
+    [*] --> Still
+    Still --> [*]
+
+    Still --> Moving
+    Moving --> Still
+    Moving --> Crash
+    Crash --> [*]
+```
+
 ## Tasks and Threads
