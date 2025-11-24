@@ -14,39 +14,31 @@ config:
 ---
 flowchart BT
     %% This is a comment for the entire diagram
-    subgraph CANbus
 
-        subgraph CAN1
+     subgraph CAN[" "]
+
             BMS(Orion BMS 2)
             BC(Battery Charger)
             PCC(PCC - Teensy 4.0)
-        end
-
-        subgraph empty[" "]
-            CCM(CCM - Teensy 4.1)
-            RPI(Raspberry Pi)
-        end
-
-        style empty stroke-width:0px
-
-
-        subgraph CAN2
             INV(OMNI Intervter)
+            RPI(Raspberry Pi)
+            MOTOR(Motor) === INV
         end
 
-        CAN1~~~empty~~~CAN2
+        CCM(CCM - Teensy 4.1)
+
 
 
         %%CAN LOOP1
-        BMS <--> |CAN1| BC <--> |CAN1| PCC <--> |CAN1| CCM
+        BMS <--> |CAN1| BC <--> |CAN1| PCC <---> |CAN1| CCM
 
         %%CANLOOP2
-        INV<--> |CAN2|CCM<--> |CAN2|RPI
-    end
+        INV<-----> |CAN2|CCM<---> |CAN1 + CAN2|RPI
 
 
 
         subgraph Analog[Analog]
+            direction LR
                 B(Brake Sensors)
                 A(Pedal Position Sensors)
                 LPOT(Suspension Travel Sensors)
@@ -54,16 +46,16 @@ flowchart BT
         end
 
         subgraph PWM[PWM]
-            W(WheelSpeed Sensors)
-            FP(Fans & Pumps)
-            SP(Speaker & Amp)
+            direction LR
+                W(WheelSpeed Sensors)
+                FP(Fans & Pumps)
+                SP(Speaker & Amp)
         end
         subgraph MISC[Digital]
-            RTM(Ready To Move Button)
-            BL(Brake Light)
+            direction LR
+                RTM(Ready To Move Button)
+                BL(Brake Light)
         end
-
-        Analog~~~PWM~~~MISC
 
         Analog --> CCM
         PWM --> CCM
