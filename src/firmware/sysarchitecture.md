@@ -62,22 +62,30 @@ flowchart BT
         MISC -->CCM
 ```
 
-Test pargraph
 
-
-## State Machine
 ```mermaid
 ---
-title: Simple sample
+config:
+  theme: 'base'
+  themeVariables:
+    primaryColor: '#ffffffff'
+    primaryTextColor: '#000000ff'
+    primaryBorderColor: '#17007cff'
+    lineColor: '#000000ff'
+    secondaryColor: '#f3f3f3ff'
+    tertiaryColor: '#f3f3f3ff'
 ---
-stateDiagram-v2
-    [*] --> Still
-    Still --> [*]
+flowchart LR
+PCC(Precharge Status) --> CCM
+A(Analog Inputs) --> CCM
+D(Digital Inputs) --> CCM
+CCM(Teensy MCU) --> IC(Inverter Commands) --> Motor(Motor Control)
+CCM --> Raspi(Raspi) --> Dashboard(Dashboard: Driver + Pit)
+CCM --> PWM(PWM Output) --> CC(Cooling Control)
 
-    Still --> Moving
-    Moving --> Still
-    Moving --> Crash
-    Crash --> [*]
+style CCM fill:#00FF00,stroke:#333,stroke-width:2px
+
 ```
 
 ## Tasks and Threads
+![" "](../images/firmware/freertos.png)

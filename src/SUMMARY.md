@@ -11,9 +11,9 @@
     - [Tasks & Scheduling](./firmware/ccm/threads.md)
     - [Telemetry](./firmware/ccm/telemetry.md)
 - [PCC](./firmware/pcc/pcc.md)
-    - [Perhipherals](./firmware/pcc/peripherals.md)
+    <!-- - [Perhipherals](./firmware/pcc/peripherals.md)
         - [Digital I/O]()
         - [Analog I/O]()
         - [CAN]()
     - [Tasks & FreeRTOS](./firmware/pcc/threads.md)
-    - [Telemetry](./firmware/pcc/telemetry.md)
+    - [Telemetry](./firmware/pcc/telemetry.md) -->
