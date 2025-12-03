@@ -8,6 +8,7 @@
 - [CCM](./firmware/ccm/ccm.md)
     - [Peripherals](./firmware/ccm/peripherals.md)
     - [Vehicle Control](./firmware/ccm/vehicle.md)
+        - [Launch_Control](./firmware/ccm/launch_control.md)
     - [Tasks & Scheduling](./firmware/ccm/threads.md)
     - [Telemetry](./firmware/ccm/telemetry.md)
 - [PCC](./firmware/pcc/pcc.md)
