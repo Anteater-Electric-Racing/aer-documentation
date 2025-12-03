@@ -10,6 +10,7 @@
     - [Vehicle Control](./firmware/ccm/vehicle.md)
     - [Tasks & Scheduling](./firmware/ccm/threads.md)
     - [Telemetry](./firmware/ccm/telemetry.md)
+    - [Power Limiting](./firmware/ccm/power_limits.md)
 - [PCC](./firmware/pcc/pcc.md)
     <!-- - [Perhipherals](./firmware/pcc/peripherals.md)
         - [Digital I/O]()
