@@ -1,4 +1,6 @@
+Author: Karan Thakkar
 # Tasks & Scheduling
+
 ![" "](../../images/firmware/freertos.png)
 
 The firmware is structured using FreeRTOS to split the vehicle control system into separate tasks, each handling its own area. ADC readings, motor control, telemetry, and high-level control all run in their own threads, so critical operations don’t get blocked by slower tasks. For example, threadADC continuously samples analog sensors, while threadMotor handles the motor state machine, updates torque, and communicates with the VCU and BMS over CAN. This keeps motor commands and sensor updates running on a predictable schedule, which is important for safe and reliable operation in the car.

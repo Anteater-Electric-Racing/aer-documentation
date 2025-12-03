@@ -1,5 +1,5 @@
+Author: Karan Thakkar
 # Peripherals
-
 ## Digital I/O
 
 ### RTM (Ready To Move) Button Input

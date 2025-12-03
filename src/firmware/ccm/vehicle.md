@@ -1,3 +1,4 @@
+Author: Karan Thakkar
 # Vehicle Control
 
 ## Motor/Inverter
