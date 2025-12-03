@@ -1,7 +1,7 @@
  <div align="center">
 
    # Launch Control Development Plan
-   #### Anoop Koganti, Rishi Tengali
+   #### Anoop Koganti, Rishi Theegala
 </div>
 
 
