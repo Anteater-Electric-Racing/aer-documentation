@@ -4,7 +4,7 @@ curl https://sh.rustup.rs -sSf | sh
 ```
 Then install mdbook (make sure to restart your terminal if you just installed rust before running the following)
 ```bash
-cargo install mdbook
+cargo install mdbook mdbook-mermaid
 ```
 Then you can clone the repo and run `mdbook serve`
 ```bash
