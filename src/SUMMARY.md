@@ -11,6 +11,7 @@
     - [Tasks & Scheduling](./firmware/ccm/threads.md)
     - [Telemetry](./firmware/ccm/telemetry.md)
 - [PCC](./firmware/pcc/pcc.md)
+- [BMS](./firmware/ccm/BMS.md)
     <!-- - [Perhipherals](./firmware/pcc/peripherals.md)
         - [Digital I/O]()
         - [Analog I/O]()
