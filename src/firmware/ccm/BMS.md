@@ -1,7 +1,7 @@
 Author: Sebastian Ethan Basa
 # ORION BMS (Battery Management System)
 
-1[" "](../../images/firmware/OrionBMS.jpg)
+![" "](../../images/firmware/OrionBMS.jpg)
 
 The purpose of the BMS is to monitor various aspects of the battery, protect its lifespan, and report any faults with the battery.
 
