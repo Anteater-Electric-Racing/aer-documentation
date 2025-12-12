@@ -13,6 +13,7 @@
     - [Telemetry](./firmware/ccm/telemetry.md)
     - [Power Limiting](./firmware/ccm/power_limits.md)
 - [PCC](./firmware/pcc/pcc.md)
+- [BMS](./firmware/ccm/BMS.md)
     <!-- - [Perhipherals](./firmware/pcc/peripherals.md)
         - [Digital I/O]()
         - [Analog I/O]()
