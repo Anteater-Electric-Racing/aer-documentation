@@ -1,6 +1,6 @@
 # Summary
 # Data Acquisition
-- [Onboarding](./dac_onboarding.md)
+- [Onboarding](./dac/onboarding.md)
 - [CAN](./dac/can/can.md)
 - [InfluxDB](./dac/influxdb/influxdb.md)
 - [MQTT](./dac/mqtt/mqtt.md)
