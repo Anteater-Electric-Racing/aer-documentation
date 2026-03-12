@@ -1,3 +1,4 @@
+
 <div align="center">
 
 # Shock Sensor Integration Plan
@@ -8,12 +9,16 @@
 ## Purpose
 Design a function that converts **4 shock sensor ADC readings** into usable **shock travel values in millimeters** for telemetry and suspension analysis.
 
-The function accounts for the fact that the linear potentiometer signal is **inverted** in the current wiring/ADC interpretation:
-- Sensor output starts near **5 V** when the shock is **not compressed**
-- The measurable voltage swing during travel is only about **0.14 V**
-- Because of that, the code flips the ADC reading and maps the small voltage change into a **0 to max travel** range
+The shock sensors are **linear potentiometers** whose signal sits close to **5 V when the shock is fully extended**.  
+When the suspension compresses, the voltage only decreases slightly.
 
-This allows the system to track suspension compression for all four corners of the car.
+The total useful signal range is approximately:
+
+**5.00 V → 4.86 V**
+
+So the **actual change is only about 0.14 V**.
+
+Because the change is very small relative to the 5 V baseline, the code treats **the difference from 5 V** as the meaningful signal and scales that difference to the full mechanical travel of the shock.
 
 ---
 
@@ -38,305 +43,169 @@ This ensures startup begins with known values instead of stale sensor data.
 2. **Invert ADC readings**
    - Each reading is converted using:
 
-     ```cpp
-     abs(4095 - rawReading)
-     ```
+```cpp
+abs(4095 - rawReading)
+```
 
-   - This is done because the sensor behavior is effectively reversed in the current setup.
-   - A 12-bit ADC ranges from **0 to 4095**, so subtracting from 4095 flips the scale.
-   - Higher original ADC values become lower processed values, and vice versa.
+- The ADC is 12-bit, meaning values range from **0 to 4095**.
+- Because the sensor voltage decreases during compression, the raw ADC value behaves opposite of the desired interpretation of travel.
+- Subtracting from 4095 flips the scale so that **increasing compression produces increasing processed signal values**.
 
 3. **Convert ADC counts to voltage**
-   - Each flipped ADC value is passed through:
 
-     ```cpp
-     ADC_VALUE_TO_VOLTAGE(...)
-     ```
+```cpp
+ADC_VALUE_TO_VOLTAGE(...)
+```
 
-   - This converts the processed ADC count into a voltage value.
+This converts the processed ADC value into volts.
 
 4. **Use `abs()` on voltage**
-   - The code applies `abs()` to the converted voltage as a safety step so the stored voltage remains non-negative.
-   - In practice, voltage should already be non-negative after conversion, so this mostly protects against unexpected sign behavior.
 
-5. **Map voltage to shock travel**
-   - Travel is calculated using:
+```cpp
+abs(ADC_VALUE_TO_VOLTAGE(...))
+```
 
-     ```cpp
-     (voltage / 0.14f) * SHOCK_TRAVEL_MAX_MM
-     ```
+This ensures the voltage value is always non‑negative.  
+It mainly acts as a safety guard against unexpected sign behavior.
 
-   - Since the useful signal span is only **0.14 V**, the code scales that small range to the full mechanical travel.
-   - So:
-     - `0.00 V` corresponds to `0 mm`
-     - `0.14 V` corresponds to `SHOCK_TRAVEL_MAX_MM`
+5. **Map voltage difference to shock travel**
+
+The shock signal only changes by **0.14 V** across its usable range:
+
+**5.00 V → 4.86 V**
+
+The code maps that small change to the full suspension travel using:
+
+```cpp
+(voltage / 0.14f) * SHOCK_TRAVEL_MAX_MM
+```
+
+Conceptually this means:
+
+| Voltage | Shock Travel |
+|-------|-------|
+| 5.00 V | 0 mm |
+| 4.93 V | ~50% travel |
+| 4.86 V | max travel |
 
 6. **Clamp output**
-   - Each travel value is constrained using:
 
-     ```cpp
-     constrain(value, 0.0f, SHOCK_TRAVEL_MAX_MM)
-     ```
+The computed travel is limited using:
 
-   - This prevents bad readings from going negative or exceeding the expected maximum travel.
+```cpp
+constrain(value, 0.0f, SHOCK_TRAVEL_MAX_MM)
+```
+
+This prevents invalid sensor readings from producing impossible travel values.
 
 ---
 
 ## Why `abs()` is used
 
 ### 1. Flipping the ADC scale
-The most important use of `abs()` is here:
 
 ```cpp
 abs(4095 - rawReading)
 ```
 
-Because the sensor sits near **5 V at full extension / no compression**, the ADC reading begins near the top of the ADC range. As the shock moves, the voltage only changes by about **0.14 V**, and in the current setup that change goes in the opposite direction of the desired travel interpretation.
+The sensor begins near **5 V when fully extended**, so the ADC reading starts close to the top of the ADC range.
 
-So instead of directly mapping the raw ADC reading, the code mirrors it around the ADC maximum:
-- near 4095 becomes near 0
-- lower readings become larger processed values
+As the shock compresses:
 
-That makes the travel calculation easier, because now increasing processed voltage corresponds more directly to increasing travel.
+- Voltage drops slightly
+- ADC value drops slightly
 
-### 2. Keeping values positive
-The voltage conversion also uses `abs()`:
+By subtracting from **4095**, the scale is mirrored so the processed signal **increases with compression**.
+
+The `abs()` ensures the result stays positive.
+
+### 2. Protecting voltage conversion
 
 ```cpp
 abs(ADC_VALUE_TO_VOLTAGE(...))
 ```
 
-This keeps the voltage non-negative. It is more of a defensive cleanup step than the main calibration mechanism.
+This simply ensures the converted voltage value cannot become negative due to any intermediate math behavior.
 
-### Important note
-`abs()` does **not** remove the 5 V offset by itself.
-
-What really makes the mapping work is:
-- flipping the ADC reading with `4095 - rawReading`
-- then scaling the small changed portion of the signal by `0.14f`
-
-So the logic is not “subtract 5 V directly.”  
-Instead, it treats the **measured changing portion** of the signal as the useful range and stretches that range across the full shock travel.
+The important calibration step is not `abs()` itself but recognizing that the **signal range is only 0.14 V below 5 V**.
 
 ---
 
 ## Implementation Details
 
 ### `void Shock_Init()`
+
 Initializes all stored linear potentiometer data to zero.
 
-This includes:
-- raw ADC readings for all 4 shocks
-- converted voltages for all 4 shocks
-- shock travel values in mm for all 4 shocks
+Values cleared:
 
-This function should be called once during system startup before sensor updates begin.
+- raw ADC readings
+- converted voltages
+- shock travel values
+
+This function runs once during startup.
 
 ---
 
-### `void ShockTravelUpdateData(uint16_t rawReading1, uint16_t rawReading2, uint16_t rawReading3, uint16_t rawReading4)`
+### `void ShockTravelUpdateData(...)`
 
-Processes all 4 shock sensor readings and updates the global `linPots` structure.
+Processes all four shock sensor ADC readings.
 
-#### Step-by-step behavior
-1. Save processed raw readings after ADC inversion
-2. Convert processed raw readings to voltages
-3. Scale each voltage using the calibrated `0.14 V` span
-4. Convert each scaled value into millimeters
-5. Clamp each value from `0` to `SHOCK_TRAVEL_MAX_MM`
+Steps:
 
-This function should be called whenever fresh ADC samples are available.
+1. Flip ADC readings using `4095 - rawReading`
+2. Convert processed ADC values to voltages
+3. Interpret the small **0.14 V drop from 5 V** as suspension compression
+4. Scale that voltage change into millimeters
+5. Clamp output values within the physical travel range
 
 ---
 
 ### `Linpot_GetData()`
-Returns a pointer to the full `linPots` data structure so other modules can read:
-- raw processed shock values
+
+Returns a pointer to the shared `linPots` data structure.
+
+Other modules can read:
+
+- raw processed sensor values
 - voltages
-- travel in mm
+- shock travel in millimeters
 
-This is useful for telemetry, logging, suspension analysis, and future control features.
-
----
-
-## Code Walkthrough
-
-### Data storage
-```cpp
-static LinpotData linPots;
-```
-
-A single static struct stores all shock-related values in one place.
-
----
-
-### Startup reset
-```cpp
-void Shock_Init() {
-    linPots.LinPot1Voltage = 0;
-    linPots.LinPot2Voltage = 0;
-    linPots.LinPot3Voltage = 0;
-    linPots.LinPot4Voltage = 0;
-
-    linPots.shockTravel1_mm = 0;
-    linPots.shockTravel2_mm = 0;
-    linPots.shockTravel3_mm = 0;
-    linPots.shockTravel4_mm = 0;
-
-    linPots.Shock1RawReading = 0;
-    linPots.Shock2RawReading = 0;
-    linPots.Shock3RawReading = 0;
-    linPots.Shock4RawReading = 0;
-}
-```
-
-Everything is zeroed so the telemetry starts clean.
-
----
-
-### ADC inversion
-```cpp
-linPots.Shock1RawReading = abs(4095 - rawReading1);
-linPots.Shock2RawReading = abs(4095 - rawReading2);
-linPots.Shock3RawReading = abs(4095 - rawReading3);
-linPots.Shock4RawReading = abs(4095 - rawReading4);
-```
-
-This mirrors each 12-bit ADC reading around 4095.
-
----
-
-### Voltage conversion
-```cpp
-linPots.LinPot1Voltage = abs(ADC_VALUE_TO_VOLTAGE(linPots.Shock1RawReading));
-linPots.LinPot2Voltage = abs(ADC_VALUE_TO_VOLTAGE(linPots.Shock2RawReading));
-linPots.LinPot3Voltage = abs(ADC_VALUE_TO_VOLTAGE(linPots.Shock3RawReading));
-linPots.LinPot4Voltage = abs(ADC_VALUE_TO_VOLTAGE(linPots.Shock4RawReading));
-```
-
-After inversion, each reading is converted into voltage.
-
----
-
-### Travel mapping
-```cpp
-linPots.shockTravel1_mm =
-    constrain((linPots.LinPot1Voltage / 0.14f) * SHOCK_TRAVEL_MAX_MM, 0.0f,
-              SHOCK_TRAVEL_MAX_MM);
-```
-
-The same mapping is repeated for all four sensors.
-
-This line says:
-
-- take measured voltage
-- divide by the calibrated active voltage span `0.14f`
-- multiply by max mechanical travel
-- clamp into a valid range
-
-Tiny voltage ripple, giant suspension meaning. Very bonsai signal, very full-size interpretation.
-
----
-
-## How to Use
-
-### 1. Initialize once
-Call this at startup:
-
-```cpp
-Shock_Init();
-```
-
----
-
-### 2. Update with fresh ADC data
-Whenever new ADC samples are read for the 4 shock sensors:
-
-```cpp
-ShockTravelUpdateData(raw1, raw2, raw3, raw4);
-```
-
-Where:
-- `raw1` = shock 1 ADC reading
-- `raw2` = shock 2 ADC reading
-- `raw3` = shock 3 ADC reading
-- `raw4` = shock 4 ADC reading
-
----
-
-### 3. Read processed values
-Use:
-
-```cpp
-LinpotData *data = Linpot_GetData();
-```
-
-Then access values like:
-- `data->shockTravel1_mm`
-- `data->shockTravel2_mm`
-- `data->shockTravel3_mm`
-- `data->shockTravel4_mm`
-
-You can also access:
-- processed raw values
-- converted voltages
+This allows telemetry and future control algorithms to access suspension data.
 
 ---
 
 ## Example
 
 ### Example input
-Suppose:
 
-```cpp
-rawReading1 = 4095;
+If the sensor is fully extended:
+
+```
+rawReading ≈ 4095
 ```
 
-Then:
+After inversion:
 
-```cpp
-abs(4095 - 4095) = 0
+```
+4095 - 4095 = 0
 ```
 
-Voltage becomes about `0 V`, so travel becomes:
-
-```cpp
-(0 / 0.14) * SHOCK_TRAVEL_MAX_MM = 0 mm
-```
-
-Now suppose the sensor changes enough that the processed voltage becomes:
-
-```cpp
-0.07 V
-```
-
-Then travel becomes:
-
-```cpp
-(0.07 / 0.14) * SHOCK_TRAVEL_MAX_MM = 0.5 * SHOCK_TRAVEL_MAX_MM
-```
-
-So that corresponds to about **half of full travel**.
+Voltage becomes near **5 V baseline**, so travel ≈ **0 mm**.
 
 ---
 
-## Notes / Limitations
+If the voltage drops by **0.07 V**:
 
-- The current mapping assumes the useful sensor range is exactly **0.14 V**
-- If real measured sensor span differs corner-to-corner, each shock may need its own calibration
-- Using `abs()` is helpful for inversion and safety, but true sensor calibration may eventually be better handled with:
-  - measured minimum voltage
-  - measured maximum voltage
-  - per-sensor offsets
-  - filtering for ADC noise
-
-A more general future mapping could look like:
-
-```cpp
-travel = ((voltage - minVoltage) / (maxVoltage - minVoltage)) * SHOCK_TRAVEL_MAX_MM;
+```
+5.00 V → 4.93 V
 ```
 
-That would be cleaner if the team later performs a full calibration sweep.
+That represents roughly **half of the total 0.14 V span**, so:
+
+```
+travel ≈ 0.5 × SHOCK_TRAVEL_MAX_MM
+```
 
 ---
 
@@ -344,108 +213,86 @@ That would be cleaner if the team later performs a full calibration sweep.
 
 Method Signature:
 
-    ShockTravelUpdateData(uint16_t rawReading1, uint16_t rawReading2,
-                          uint16_t rawReading3, uint16_t rawReading4)
+```
+ShockTravelUpdateData(uint16_t rawReading1,
+                      uint16_t rawReading2,
+                      uint16_t rawReading3,
+                      uint16_t rawReading4)
+```
 
 Constants:
 
-    ADC max count = 4095
+```
+ADC max count = 4095
+voltage span = 0.14 V
+minTravel = 0
+maxTravel = SHOCK_TRAVEL_MAX_MM
+```
 
-    active voltage span = 0.14f
+---
 
-    minTravel = 0.0f
-
-    maxTravel = SHOCK_TRAVEL_MAX_MM
-
-<div align="center">
-
-## TestCase 1 (initialization)
+## TestCase 1 (Initialization)
 
 Call:
 
-    Shock_Init()
+```
+Shock_Init()
+```
 
 Expected behavior:
 
-- All raw readings = 0
 - All voltages = 0
+- All raw readings = 0
 - All shock travel values = 0 mm
 
-</div>
+---
 
-<div align="center">
+## TestCase 2 (Fully Extended)
 
-## TestCase 2 (fully extended / no compression)
+Inputs correspond to ~5 V:
 
-rawReading1 = 4095  
-rawReading2 = 4095  
-rawReading3 = 4095  
-rawReading4 = 4095
+```
+rawReading ≈ 4095
+```
 
-Expected behavior:
+Expected:
 
-- Processed raw values = 0
-- Voltages = 0 V
-- shockTravel1_mm through shockTravel4_mm = 0 mm
+```
+shockTravel = 0 mm
+```
 
-</div>
+---
 
-<div align="center">
+## TestCase 3 (Mid Travel)
 
-## TestCase 3 (mid-travel equivalent)
+Voltage ≈ **4.93 V** (half of 0.14 V span)
 
-Choose ADC values such that processed voltage is about 0.07 V
+Expected:
 
-Expected behavior:
+```
+shockTravel ≈ 0.5 × SHOCK_TRAVEL_MAX_MM
+```
 
-- Each affected shock reports about half of `SHOCK_TRAVEL_MAX_MM`
+---
 
-Example expectation:
+## TestCase 4 (Full Compression)
 
-    shockTravelX_mm ≈ 0.5 * SHOCK_TRAVEL_MAX_MM
+Voltage ≈ **4.86 V**
 
-</div>
+Expected:
 
-<div align="center">
+```
+shockTravel = SHOCK_TRAVEL_MAX_MM
+```
 
-## TestCase 4 (full-scale travel)
+---
 
-Choose ADC values such that processed voltage is about 0.14 V
+## TestCase 5 (Out of Range)
 
-Expected behavior:
+Voltage difference exceeds **0.14 V**.
 
-- Computed travel reaches max
-- Output is clamped to:
+Expected:
 
-    SHOCK_TRAVEL_MAX_MM
-
-</div>
-
-<div align="center">
-
-## TestCase 5 (over-range input)
-
-Choose ADC values that convert to a voltage greater than 0.14 V after inversion
-
-Expected behavior:
-
-- Travel calculation exceeds max internally
-- `constrain()` clamps final value to:
-
-    SHOCK_TRAVEL_MAX_MM
-
-</div>
-
-<div align="center">
-
-## TestCase 6 (negative or invalid intermediate protection)
-
-If any unexpected conversion behavior causes a negative intermediate value
-
-Expected behavior:
-
-- `abs()` forces non-negative voltage
-- `constrain()` prevents negative travel
-- Final output remains in valid range
-
-</div>
+```
+constrain() clamps value to SHOCK_TRAVEL_MAX_MM
+```
