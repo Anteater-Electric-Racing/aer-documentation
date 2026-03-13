@@ -4,6 +4,10 @@
 - [CAN](./dac/can/can.md)
 - [InfluxDB](./dac/influxdb/influxdb.md)
 - [MQTT](./dac/mqtt/mqtt.md)
+- [Simulator](./dac/simulator)
+    - [Godot](./dac/simulator/godot)
+    - [Inverter Simulation](./dac/simulator/inverter)
+    - [Reinforcement Learning](./dac/simulator/rl)
 <!--temporary structure-->
 # Firmware
 - [Onboarding](./firmware/onboarding.md)
