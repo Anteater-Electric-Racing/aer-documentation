@@ -4,7 +4,7 @@
 - [CAN](./dac/can/can.md)
 - [InfluxDB](./dac/influxdb/influxdb.md)
 - [MQTT](./dac/mqtt/mqtt.md)
-- [Simulator](./dac/simulator)
+- [Simulator](./dac/simulator/simulator.md)
     - [Godot](./dac/simulator/godot)
     - [Inverter Simulation](./dac/simulator/inverter)
     - [Reinforcement Learning](./dac/simulator/rl)
