@@ -14,6 +14,7 @@
         - [Launch Control](./firmware/ccm/launch_control.md)
     - [Tasks & Scheduling](./firmware/ccm/threads.md)
     - [Telemetry](./firmware/ccm/telemetry.md)
+        - [Sensor Integration](./firmware/ccm/sensorIntegration.md)
     - [Power Limiting](./firmware/ccm/power_limits.md)
 - [PCC](./firmware/pcc/pcc.md)
 - [BMS](./firmware/ccm/BMS.md)
