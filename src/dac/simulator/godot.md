@@ -60,6 +60,23 @@ These must be mapped in **Project Settings → Input Map**:
 
 # Configuration Constants
 
+## Simulation Constants (Latest)
+
+| Constant                | Current Value | Unit               | Function                                                                                    | Effect When Increased                |
+| ----------------------- | ------------- | ------------------ | ------------------------------------------------------------------------------------------- | ------------------------------------ |
+| `MAX_POWER`             | 500.0         | engine force (N)       | Maximum engine force applied to traction wheels                                             | Stronger acceleration                |
+| `ACCELERATION_STEP`     | 5.0           | engine force/frame (N/frame) | Increment added to engine force each frame when accelerating (if dynamic throttle disabled) | Faster throttle response             |
+| `USE_DYNAMIC_THROTTLE`  | true          | boolean            | Enables throttle control using `throttle_function()` instead of incremental acceleration    | Allows realistic engine power curves |
+| `MOTOR_RAMP_DOWN_STEP`  | 50.0          | engine force/frame (N/frame) | Rate at which engine force decreases when accelerator is released                           | Vehicle loses power faster           |
+| `BRAKING_STEP`          | 1.0           | brake force/frame  | Increment added to braking force when braking                                               | Brakes apply faster                  |
+| `BASE_DECEL`            | 5.0           | brake force (N)        | Passive braking applied when no throttle or brake input is given                            | Vehicle slows faster when coasting   |
+| `MAX_BRAKING`           | 15.0          | brake force (N)        | Maximum braking force that can be applied                                                   | Shorter stopping distance            |
+| `STEER_STEP`            | 0.5           | degrees/frame      | Amount steering angle changes each frame when turning                                       | Faster steering response             |
+| `MAX_STEERING_ANGLE`    | 32.0          | degrees            | Maximum allowed steering angle for steering wheels                                          | Tighter turning radius               |
+| `MAX_VEHICLE_SPEED_MPH` | 90.0          | mph                | Maximum allowed vehicle speed before throttle stops increasing                              | Higher top speed                     |
+| `DISPLAY_DEBUG_SPEED`   | true          | boolean            | Enables console output of speed and steering data                                           | Debug output enabled                 |
+
+
 ## Debug
 
 ```gdscript
