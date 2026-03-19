@@ -1,7 +1,7 @@
 <div align="center">
 
 # APPS Module Overview
-#### Anteater Electric Racing
+#### Anoop Koganti
 
 </div>
 
