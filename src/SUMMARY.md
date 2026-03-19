@@ -15,7 +15,7 @@
 - [System Architecture](./firmware/sysarchitecture.md)
 - [CCM](./firmware/ccm/ccm.md)
     - [Peripherals](./firmware/ccm/peripherals.md)
-        - [APPS]()
+        - [APPS](./firmware/ccm/APPS.md)
     - [Vehicle Control](./firmware/ccm/vehicle.md)
         - [Launch Control](./firmware/ccm/launch_control.md)
     - [Tasks & Scheduling](./firmware/ccm/threads.md)
