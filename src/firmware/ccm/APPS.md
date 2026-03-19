@@ -1,185 +1,190 @@
-# APPS Module Documentation
-**Anteater Electric Racing, 2025**
+<div align="center">
+
+# APPS Module Overview
+#### Anteater Electric Racing
+
+</div>
 
 ---
 
-## Overview
+## Purpose
+Process **two pedal sensors** and output a safe, normalized throttle value.
 
-The **APPS (Accelerator Pedal Position Sensor)** module processes two independent pedal sensors to determine driver throttle input.
-
-It performs:
-- Signal filtering
-- Voltage conversion from ADC values
-- Pedal percentage mapping (0.0 → 1.0)
-- Sensor fault detection
-- Brake–throttle plausibility checks using BSE data
-
-The module is designed as a **safety-critical component**, ensuring redundancy and preventing unsafe operating conditions.
+- Converts raw ADC → **pedal % (0–1)**
+- Ensures both sensors **agree**
+- Detects **faults (electrical + plausibility)**
+- Prevents **brake + throttle simultaneously**
 
 ---
 
-## System Data Flow
+## High Level Flow
 
-The APPS module receives raw ADC values from an external ADC (ADS1115) and processes them into usable throttle values.
-
-### Data Pipeline
-
-ADS1115 ADC -> Raw ADC Counts -> Low-pass filter ->Voltage conversion -> Percentage mapping (0–1) -> Fault detection -> Throttle output
+Raw ADC → Filter → % Mapping → Voltage Check → Faults → Output
 
 ---
 
-## Input Sources
-
-Two independent sensors are used:
-
-| Sensor | Voltage Range | Description |
-|--------|--------------|-------------|
-| APPS1  | 0–5V         | Primary pedal sensor |
-| APPS2  | 0–3.3V       | Secondary redundant sensor |
-
----
-
-## Internal Data Structure
-
-```cpp
-typedef struct {
-    float appsReading1_Percentage;
-    float appsReading2_Percentage;
-
-    float appsReading1_Voltage;
-    float appsReading2_Voltage;
-
-    float apps1RawReading;
-    float apps2RawReading;
-} APPSData;
-```
-
----
-
-## Initialization
-
-### `APPS_Init()`
-
-Initializes all state variables and sets filter parameters.
-
-- Sets all readings to zero
-- Configures low-pass filter:
-
-```cpp
-appsAlpha = COMPUTE_ALPHA(100.0F);
-```
-
-(100 Hz cutoff frequency)
-
----
-
-## Main Update Function
+## Update Function
 
 ### `APPS_UpdateData(raw1, raw2)`
 
-Processes new ADC data from both sensors.
+1. **Filter Inputs**
+- Apply low-pass filter (100 Hz)
+- Smooths noise and spikes
+- This helps keep the pedal signal stable instead of jumping around from tiny electrical fluctuations
 
 ---
 
-## Processing Steps
+2. **Convert to Pedal %**
 
-### 1. Low-Pass Filtering
-
-```cpp
-filtered = previous + alpha * (new - previous);
+- Uses calibrated raw values:
+```
+rest → 0%
+full → 100%
 ```
 
----
-
-### 2. ADC to Voltage Conversion
-
-```cpp
-voltage = raw * ADS_VOLTS_PER_BIT * 1.25;
+```
+apps1 = LINEAR_MAP(raw1, REST1, FULL1, 0 → 1)
+apps2 = LINEAR_MAP(raw2, REST2, FULL2, 0 → 1)
 ```
 
+- This means the code is mainly built around **real measured ADC values** from the pedal, not just ideal voltages
+- That makes calibration easier because the mapping matches the actual installed hardware
+
 ---
 
-### 3. Voltage to Percentage Mapping
-
-```cpp
-APPS1: 0–5V   → 0–1
-APPS2: 0–3.3V → 0–1
+3. **Clamp Values**
+- Ensure:
+```
+0 ≤ APPS ≤ 1
 ```
 
----
-
-### 4. Clamping
-
-Voltage and percentage values are clamped within safe bounds.
+- If the sensor goes slightly below rest or above full travel, the final output is still kept in a safe range
 
 ---
 
-## Fault Detection
+4. **Convert to Voltage**
+Used for fault detection only:
 
-### Electrical Fault
+```
+voltage = ADC_VALUE_TO_VOLTAGE(raw)
+```
 
-Triggered when:
-- Voltage out of range
-- Sensors disagree beyond threshold
-
-### Time Requirement
-
-Fault must persist longer than:
-
-APPS_FAULT_TIME_THRESHOLD_MS
+- The code still converts raw readings into voltage so it can check for open-circuit or short-circuit behavior
+- So percentage is based mainly on **raw ADC calibration**, while voltage is used mainly for **electrical safety checks**
 
 ---
 
-### Sensor Disagreement
+5. **Voltage Safety Check**
 
+APPS1 (3.3V):
+```
+0.33V → 2.97V (fault range)
+```
+
+APPS2 (5V):
+```
+0.5V → 4.5V (fault range)
+```
+
+- If a sensor voltage goes outside these ranges for too long, the system raises an APPS fault
+- This helps catch wiring issues, sensor faults, or readings that are no longer physically believable
+
+---
+
+6. **Sensor Agreement Check**
+
+```
 difference = |APPS1 - APPS2|
+```
 
 If:
+```
+difference > 0.1 (10%)
+```
+→ FAULT
 
-difference > APPS_IMPLAUSABILITY_THRESHOLD
-
-→ Fault triggered
+- Since the pedal uses two sensors, they should track each other closely
+- If they disagree too much, the system treats that as unsafe
 
 ---
 
-## Brake–Throttle Plausibility
+7. **Brake Plausibility Check**
 
-Uses BSE readings.
+If:
+```
+Throttle > 25%
+AND
+Brake > threshold
+```
 
-Triggered when:
-
-Throttle > threshold AND Brake > threshold
+→ FAULT
 
 Reset when:
+```
+Throttle < 5%
+```
 
-Throttle < reset threshold
+- This prevents the car from accepting heavy throttle while strong braking is also being detected
 
 ---
 
-## Output Functions
+## Output
 
-Average throttle:
-
+```
 APPS = (APPS1 + APPS2) / 2
+```
+
+- The final pedal command is the average of both sensors
+- This gives one clean throttle value to pass into the rest of the vehicle logic
 
 ---
 
-## Safety Design
+## ADS1115 Integration
 
-- Dual sensor redundancy
-- Noise filtering
-- Time-based fault validation
+The APPS code is fed by the **ADS1115 external ADC**.
 
----
+In `adc.cpp`, the ADS reads the two pedal channels and passes them into:
 
-## Important Notes
+```cpp
+APPS_UpdateData(raw1, raw2);
+```
 
-- Mixed 5V and 3.3V sensors require calibration
-- Scaling factor (1.25) affects voltage conversion
-- LINEAR_MAP does not clamp automatically
+So the flow is:
+
+```text
+Pedal sensor → ADS1115 → raw ADC counts → APPS_UpdateData()
+```
+
+### Why use the ADS1115?
+
+The ADS1115 gives **16-bit readings**, which means it can measure the sensor signal with much finer resolution than a typical 12-bit onboard ADC.
+
+That helps because:
+
+- **higher resolution** gives smaller voltage steps between readings
+- **better precision** makes pedal calibration cleaner
+- **less quantization error** means smoother percentage mapping
+- **less noise sensitivity** makes the signal easier to filter and trust
+
+In simple terms, the ADS gives the APPS module a more detailed picture of what the pedal is doing.
+
+### Why that matters for APPS
+
+Since APPS is safety-critical, better signal quality is valuable:
+- small pedal changes are easier to detect
+- the filtered signal is smoother
+- the two sensors can be compared more accurately
+- fault checks become more reliable
+
+So while the APPS logic itself is mainly based on **filtered raw counts and calibration**, the ADS1115 improves the quality of those raw counts before APPS ever sees them.
 
 ---
 
 ## Summary
 
-The APPS module ensures safe, reliable throttle input by validating and processing redundant sensor data before it is used by the motor control system.
+APPS:
+- Converts pedal → throttle
+- Verifies sensor agreement
+- Blocks unsafe conditions
+
+The ADS1115 helps by giving **high-resolution 16-bit sensor readings** with better accuracy and lower effective noise, making the APPS signal cleaner and more trustworthy before torque is commanded.
