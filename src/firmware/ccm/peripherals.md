@@ -24,12 +24,27 @@ From this, speed and wheel rotational dynamics can be calculated for traction co
 Two MOSFET-controlled outputs are available for driving the cooling fan and coolant pump. These are controlled through software feedback loops that monitor thermistor temperature readings. When temperature increases beyond a target setpoint, fan or pump duty cycle increases proportionally. When temperatures fall below defined limits, duty cycle is reduced. This provides automatic thermal regulation for the accumulator or power electronics cooling loop.
 
 ### Speaker Output
+
+**Authors: Dylan Tran, Anushree Godbole**
+
 Audio signaling is performed using a PWM output connected to an amplifier which drives the speaker. This is used to produce audible alerts per competition requirements, such as:
 - Ready-to-drive tone
 - Fault indication tones
 - System status alerts
 
 The speaker system ensures the car meets FSAE safety requirements for audible signaling before the drivetrain engages.
+
+The Ready-To-Drive (RTD) sound is a 3-second continuous beep triggered during the vehicle startup sequence. 
+
+**Testing Results:**
+Testing was performed at 12V with the potentiometer maxed out to ensure compliance with the **90dB @ 1m** and **80dB @ 2m** requirements.
+
+| Distance | Recorded Level | Voltage | Status |
+| :--- | :--- | :--- | :--- |
+| **1 meter** | 101 dB | ~8.9V | **PASS** |
+| **2 meters** | 94 dB | ~8.9V | **PASS** |
+
+*Note: A voltage drop to ~8.9V was observed during the 3-second pulse; however, the decibel output remained well above the required threshold.*
 
 ---
 
