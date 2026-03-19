@@ -24,19 +24,7 @@ The APPS module receives raw ADC values from an external ADC (ADS1115) and proce
 
 ### Data Pipeline
 
-ADS1115 ADC
-    ↓
-Raw ADC Counts
-    ↓
-Low-pass filter
-    ↓
-Voltage conversion
-    ↓
-Percentage mapping (0–1)
-    ↓
-Fault detection
-    ↓
-Throttle output
+ADS1115 ADC -> Raw ADC Counts -> Low-pass filter ->Voltage conversion -> Percentage mapping (0–1) -> Fault detection -> Throttle output
 
 ---
 
