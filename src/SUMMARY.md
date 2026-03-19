@@ -1,4 +1,5 @@
 # Summary
+- [Home](./home.md)
 # Data Acquisition
 - [Onboarding](./dac/onboarding.md)
 - [CAN](./dac/can/can.md)

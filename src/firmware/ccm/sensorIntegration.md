@@ -9,7 +9,7 @@
 ## Purpose
 Design a function that converts **4 shock sensor ADC readings** into usable **shock travel values in millimeters** for telemetry and suspension analysis.
 
-The shock sensors are **linear potentiometers** whose signal sits close to **5 V when the shock is fully extended**.  
+The shock sensors are **linear potentiometers** whose signal sits close to **5 V when the shock is fully extended**.
 When the suspension compresses, the voltage only decreases slightly.
 
 The total useful signal range is approximately:
@@ -65,7 +65,7 @@ This converts the processed ADC value into volts.
 abs(ADC_VALUE_TO_VOLTAGE(...))
 ```
 
-This ensures the voltage value is always non‑negative.  
+This ensures the voltage value is always non‑negative.
 It mainly acts as a safety guard against unexpected sign behavior.
 
 5. **Map voltage difference to shock travel**

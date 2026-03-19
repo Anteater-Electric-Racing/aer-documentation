@@ -2,7 +2,7 @@
 authors = ["Alistair Keiller"]
 language = "en"
 src = "src"
-title = "Anteater Electric Racing Documentation"
+title = "Anteater Electric Racing Documentation: Embedded Systems"
 
 [preprocessor.mermaid]
 command = "mdbook-mermaid"
