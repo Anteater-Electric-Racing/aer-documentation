@@ -27,17 +27,14 @@ Two MOSFET-controlled outputs are available for driving the cooling fan and cool
 
 **Authors: Dylan Tran, Anushree Godbole**
 
-Audio signaling is performed using a PWM output connected to an amplifier which drives the speaker. This is used to produce audible alerts per competition requirements, such as:
-- Ready-to-drive tone
-- Fault indication tones
-- System status alerts
+Audio signaling is performed using a PWM output connected to a low-pass filter and to an amplifier, which drives the speaker. This is used to produce a tone for the Ready to Drive Sound (RTDS).
 
 The speaker system ensures the car meets FSAE safety requirements for audible signaling before the drivetrain engages.
 
-The Ready-To-Drive (RTD) sound is a 3-second continuous beep triggered during the vehicle startup sequence. 
+The Ready to Drive Sound is a continuous beep lasting 1–3 seconds, triggered during the vehicle startup sequence.
 
 **Testing Results:**
-Testing was performed at 12V with the potentiometer maxed out to ensure compliance with the **90dB @ 1m** and **80dB @ 2m** requirements.
+Testing was performed at 12V with the potentiometer maxed out to ensure compliance with the **80dB @ 2m** requirement **(EV.9.7 and IN.10.3).** Tests were conducted in a quiet, closed room.
 
 | Distance | Recorded Level | Voltage | Status |
 | :--- | :--- | :--- | :--- |
