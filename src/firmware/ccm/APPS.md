@@ -1,6 +1,6 @@
 <div align="center">
 
-# APPS Module Overview
+# Acceleration Pedal Position Sensor
 #### Anoop Koganti
 
 </div>
