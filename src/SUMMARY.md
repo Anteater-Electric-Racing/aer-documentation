@@ -16,6 +16,7 @@
     - [Peripherals](./firmware/ccm/peripherals.md)
         - [APPS](./firmware/ccm/APPS.md)
     - [Vehicle Control](./firmware/ccm/vehicle.md)
+        - [Traction Control](./firmware/traction_control.md)
         - [Launch Control](./firmware/ccm/launch_control.md)
     - [Tasks & Scheduling](./firmware/ccm/threads.md)
     - [Telemetry](./firmware/ccm/telemetry.md)
@@ -26,6 +27,7 @@
     - [Watchdog Timer](./firmware/ccm/wdt.md)
 - [PCC](./firmware/pcc/pcc.md)
 - [BMS](./firmware/ccm/BMS.md)
+
     <!-- - [Perhipherals](./firmware/pcc/peripherals.md)
         - [Digital I/O]()
         - [Analog I/O]()
