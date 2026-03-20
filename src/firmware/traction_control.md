@@ -1,3 +1,5 @@
+Author: Sebastian Ethan Basa
+
 # Traction Control Module Overview
 
 This module implements a basic traction‑control strategy intended to limit excessive wheel slip during acceleration. The approach uses front‑wheel speeds as an estimate of vehicle speed and compares them to the driven rear‑wheel speeds to detect slip. When slip exceeds a defined threshold, the system reduces the requested torque using a PID controller.
