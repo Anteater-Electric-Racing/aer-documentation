@@ -3,19 +3,18 @@
 # Data Acquisition
 - [Onboarding](./dac/onboarding.md)
 - [CAN](./dac/can/can.md)
-- [InfluxDB](./dac/influxdb/influxdb.md)
 - [MQTT](./dac/mqtt/mqtt.md)
 - [Send](./dac/send/send.md)
 - [Simulator](./dac/simulator/simulator.md)
     - [Godot](./dac/simulator/godot.md)
     - [Inverter Simulation](./dac/simulator/inverter.md)
     - [Reinforcement Learning](./dac/simulator/rl.md)
-<!--temporary structure-->
 # Firmware
 - [Onboarding](./firmware/onboarding.md)
 - [System Architecture](./firmware/sysarchitecture.md)
 - [CCM](./firmware/ccm/ccm.md)
     - [Peripherals](./firmware/ccm/peripherals.md)
+        - [APPS](./firmware/ccm/APPS.md)
     - [Vehicle Control](./firmware/ccm/vehicle.md)
         - [Launch Control](./firmware/ccm/launch_control.md)
     - [Tasks & Scheduling](./firmware/ccm/threads.md)
@@ -24,6 +23,7 @@
     - [Power Limiting](./firmware/ccm/power_limits.md)
     - [Wheel Encoder](./firmware/ccm/wheel_encoder.md)
     - [CAN Interrupt](./firmware/ccm/can_interrupt.md)
+    - [Watchdog Timer](./firmware/ccm/wdt.md)
 - [PCC](./firmware/pcc/pcc.md)
 - [BMS](./firmware/ccm/BMS.md)
     <!-- - [Perhipherals](./firmware/pcc/peripherals.md)

@@ -15,8 +15,8 @@ This site is the shared starting point for onboarding, architecture, and impleme
 #### Data Acquisition (DAC)
 The DAC side focuses on telemetry transport, storage, visualization, and simulation tooling.
 - CAN ISO-TP telemetry ingestion and decoding [(*CAN docs*)](./dac/can/can.md)
-- MQTT verification and publish/subscribe pipeline [(*MQTT docs*)](./dac/mqtt/mqtt.md)
-- InfluxDB line protocol conversion and storage [(*InfluxDB docs*)](./dac/influxdb/influxdb.md)
+- MQTT broker startup and configuration [(*MQTT docs*)](./dac/mqtt/mqtt.md)
+- Telemetry fan-out to MQTT and TDengine [(*Send docs*)](./dac/send/send.md)
 - Dashboard + Raspberry Pi telemetry services
 - Simulator efforts (Godot, inverter simulation, RL) [(*Simulator docs*)](./dac/simulator/simulator.md)
 
