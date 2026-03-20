@@ -12,6 +12,7 @@
     - [Telemetry](./firmware/ccm/telemetry.md)
 - [PCC](./firmware/pcc/pcc.md)
 - [BMS](./firmware/ccm/BMS.md)
+- [Traction Control](./firmware/traction_control.md)
     <!-- - [Perhipherals](./firmware/pcc/peripherals.md)
         - [Digital I/O]()
         - [Analog I/O]()
