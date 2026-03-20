@@ -21,7 +21,7 @@ Here is our codebase: [https://github.com/Anteater-Electric-Racing/embedded](htt
 
 ### [fsae-dashboard](https://github.com/Anteater-Electric-Racing/embedded/tree/main/fsae-dashboard)
 
-![dashboard](images/dashboard.png)
+![dashboard](../images/dashboard.png)
 
 This dashboard displays current critical information to the driver.
 
