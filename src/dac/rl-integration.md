@@ -1,7 +1,6 @@
-# Reinforcement Learning
 # Godot RL Agents Integration for Autonomous Driving
 
-Author: Mikayla Lee
+**Author:** Mikayla Lee
 
 ## Overview
 The Godot RL Agents integration enables reinforcement learning agents to train autonomous driving policies on the AER simulator. This system bridges the Godot physics simulator with RL training libraries, allowing any standard AI RL agents to learn driving behaviors in a virtual environment.
