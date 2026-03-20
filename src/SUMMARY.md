@@ -24,6 +24,7 @@
     - [Power Limiting](./firmware/ccm/power_limits.md)
     - [Wheel Encoder](./firmware/ccm/wheel_encoder.md)
     - [CAN Interrupt](./firmware/ccm/can_interrupt.md)
+    - [Watchdog Timer](./firmware/ccm/wdt.md)
 - [PCC](./firmware/pcc/pcc.md)
 - [BMS](./firmware/ccm/BMS.md)
     <!-- - [Perhipherals](./firmware/pcc/peripherals.md)
