@@ -16,8 +16,8 @@ This system receives telemetry data from the motor controller over CAN using ISO
 
 * Listens on the physical CAN interface (`can0`) using ISO-TP sockets
 * Receives multi-frame telemetry packets from the motor controller
-* Validates packet length (**expected: 58 bytes**)
-* Decodes raw bytes into typed telemetry fields
+* Validates packet length using `Deku`.
+* Decodes raw bytes into typed telemetry fields using `Deku`.
 
 ### Telemetry Parsing
 
@@ -34,7 +34,7 @@ This system receives telemetry data from the motor controller over CAN using ISO
 
 ### ISO-TP Test Transmission (vCAN)
 
-* Serializes `TelemetryData` using `bincode`
+* Serializes `TelemetryData` using `Deku`
 * Sends telemetry as a single ISO-TP packet over `vcan0`
 * Used exclusively for testing and CI validation
 
@@ -58,13 +58,42 @@ This system receives telemetry data from the motor controller over CAN using ISO
 
 **Contents:**
 
-* Driver input: accelerator pedal travel (`apps_travel`)
-* Motor metrics: speed, torque, max torque, direction, state
-* MCU status: main state, work mode, voltage, current
-* Thermal data: motor and MCU temperatures
-* Fault flags: over-voltage, over-current, stall, phase current, overspeed
-* Warning level: MCU warning severity
-* Debug channels: `debug_0` – `debug_3`
+* `apps_travel` (`f32`) – Accelerator pedal travel as a normalized throttle input value.
+
+* **Motor metrics**
+    * `motor_speed` (`f32`) – Current motor rotational speed.
+    * `motor_torque` (`f32`) – Instantaneous motor output torque.
+    * `max_motor_torque` (`f32`) – Maximum available or configured motor torque limit.
+    * `motor_direction` (`MotorRotateDirection`) – Commanded/observed motor rotation direction.
+    * `motor_state` (`MotorState`) – Current high-level motor state (for example idle, driving, or fault).
+
+* **MCU status**
+    * `mcu_main_state` (`MCUMainState`) – Main inverter/controller state machine state.
+    * `mcu_work_mode` (`MCUWorkMode`) – Active control mode (such as torque or speed mode).
+    * `mcu_voltage` (`f32`) – Measured MCU DC bus/input voltage.
+    * `mcu_current` (`f32`) – Measured MCU current draw.
+    * `mcu_warning_level` (`MCUWarningLevel`) – Aggregated warning severity reported by the MCU.
+
+* **Thermal data**
+    * `motor_temp` (`i32`) – Motor temperature reading.
+    * `mcu_temp` (`i32`) – MCU/controller temperature reading.
+
+* **Fault flags (motor/controller)**
+    * `dc_main_wire_over_volt_fault` (`bool`) – True when DC main wire voltage exceeds safe threshold.
+    * `dc_main_wire_over_curr_fault` (`bool`) – True when DC main wire current exceeds safe threshold.
+    * `motor_over_spd_fault` (`bool`) – True when motor speed is above allowed limit.
+    * `motor_phase_curr_fault` (`bool`) – True when motor phase current fault is detected.
+    * `motor_stall_fault` (`bool`) – True when motor stall condition is detected.
+
+* **Safety/plausibility flags (bitfield bools)**
+    * `over_current` (`bool`) – System-level over-current protection flag.
+    * `under_voltage` (`bool`) – Supply voltage below valid operating range.
+    * `over_temperature` (`bool`) – Temperature exceeded configured safe limit.
+    * `apps` (`bool`) – Accelerator Pedal Position Sensor fault flag.
+    * `bse` (`bool`) – Brake System Encoder/Sensor fault flag.
+    * `bpps` (`bool`) – Brake Pedal Position Sensor fault flag.
+    * `apps_brake_plaus` (`bool`) – Accelerator/brake plausibility violation flag.
+    * `low_battery_voltage` (`bool`) – Battery voltage low warning/fault flag.
 
 ---
 
@@ -106,13 +135,11 @@ This system receives telemetry data from the motor controller over CAN using ISO
 * Medium
 * High
 
-Each enum includes a `from_byte()` constructor for safe decoding from raw CAN payloads.
-
 ---
 
 ## CAN Reader Summary
 
-### Function: `read_can`
+### Function: `read_can_hardware`
 
 **Purpose:** Continuously reads and decodes telemetry packets from `can0`
 
@@ -121,7 +148,7 @@ Each enum includes a `from_byte()` constructor for safe decoding from raw CAN pa
 * Attempts to open an ISO-TP socket (retries on failure)
 * Reads incoming packets asynchronously
 * Validates packet length
-* Parses raw bytes into `TelemetryData`
+* Parses raw bytes into `TelemetryData` using `Deku`.
 * Forwards decoded telemetry via `send_message()`
 
 **Error Handling:**
@@ -129,30 +156,6 @@ Each enum includes a `from_byte()` constructor for safe decoding from raw CAN pa
 * Logs socket creation failures
 * Logs malformed packet lengths
 * Continues operation without crashing
-
----
-
-## Test: ISO-TP Telemetry Transmission
-
-### Test: `test_send_telemetry_over_isotp`
-
-**Purpose:** Verifies ISO-TP telemetry transmission over a virtual CAN interface
-
-### Steps
-
-#### 1. Prepare Test Data
-
-* Creates a `TelemetryData` instance with representative values
-
-#### 2. Send Telemetry
-
-* Serializes the struct using `bincode`
-* Transmits the packet over ISO-TP on `vcan0`
-
-#### 3. Validate Environment
-
-* Uses vCAN setup provided by the GitHub Actions workflow (`test.yml`)
-* Confirms ISO-TP send path functions correctly
 
 ---
 
