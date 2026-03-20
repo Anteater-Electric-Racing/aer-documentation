@@ -1,3 +1,4 @@
+Author: Karan Thakkar
 # CCM: Central Computer Module
 CCM is the main central vehicle board. Its main purpose is to acquire data from sensors across the car, use it in vehicle control commands and send over CAN to our Raspberry Pi.
 

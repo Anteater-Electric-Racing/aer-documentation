@@ -1,3 +1,4 @@
+Author: Karan Thakkar
 # Telemetry
 Current Version: HIMaC testing:
 ```

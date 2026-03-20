@@ -1,4 +1,5 @@
-## System Architecture
+Author: Karan Thakkar
+# System Architecture
 <!--test holding of diagrams-->
 ```mermaid
 ---
@@ -87,5 +88,5 @@ style CCM fill:#00FF00,stroke:#333,stroke-width:2px
 
 ```
 
-## Tasks and Threads
+# Tasks and Threads
 ![" "](../images/firmware/freertos.png)

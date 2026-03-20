@@ -1,16 +1,30 @@
 # Summary
+- [Home](./home.md)
 # Data Acquisition
-- [Onboarding](./dac_onboarding.md)
-<!--temporary structure-->
+- [Onboarding](./dac/onboarding.md)
+- [CAN](./dac/can/can.md)
+- [MQTT](./dac/mqtt/mqtt.md)
+- [Send](./dac/send/send.md)
+- [Simulator](./dac/simulator/simulator.md)
+    - [Godot](./dac/simulator/godot.md)
+    - [Inverter Simulation](./dac/simulator/inverter.md)
+    - [Reinforcement Learning](./dac/simulator/rl.md)
 # Firmware
 - [Onboarding](./firmware/onboarding.md)
 - [System Architecture](./firmware/sysarchitecture.md)
 - [CCM](./firmware/ccm/ccm.md)
     - [Peripherals](./firmware/ccm/peripherals.md)
+        - [APPS](./firmware/ccm/APPS.md)
     - [Vehicle Control](./firmware/ccm/vehicle.md)
         - [Traction Control](./firmware/traction_control.md)
+        - [Launch Control](./firmware/ccm/launch_control.md)
     - [Tasks & Scheduling](./firmware/ccm/threads.md)
     - [Telemetry](./firmware/ccm/telemetry.md)
+        - [Sensor Integration](./firmware/ccm/sensorIntegration.md)
+    - [Power Limiting](./firmware/ccm/power_limits.md)
+    - [Wheel Encoder](./firmware/ccm/wheel_encoder.md)
+    - [CAN Interrupt](./firmware/ccm/can_interrupt.md)
+    - [Watchdog Timer](./firmware/ccm/wdt.md)
 - [PCC](./firmware/pcc/pcc.md)
 - [BMS](./firmware/ccm/BMS.md)
 

@@ -1,4 +1,7 @@
 # Onboarding
+
+Author: Karan Thakkar
+
 ## Relevant coding background to understand firmware
 Git: [Video](https://www.youtube.com/watch?v=TFhbv6gw2Wo) || [Article](https://dev.to/ajmal_hasan/beginner-friendly-git-workflow-for-developers-2g3g)
 

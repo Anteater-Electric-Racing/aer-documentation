@@ -1,3 +1,4 @@
+Authors: Adam Wu, Anna Lee
 # Pre-Charge Circuit
 
 ---
