@@ -18,6 +18,7 @@
     - [Vehicle Control](./firmware/ccm/vehicle.md)
         - [Traction Control](./firmware/traction_control.md)
         - [Launch Control](./firmware/ccm/launch_control.md)
+        - [Regen Braking](./firmware/ccm/BrakeMapping.md)
     - [Tasks & Scheduling](./firmware/ccm/threads.md)
     - [Telemetry](./firmware/ccm/telemetry.md)
         - [Sensor Integration](./firmware/ccm/sensorIntegration.md)
