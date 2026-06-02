@@ -25,28 +25,29 @@ The firmware computes wheel rotational dynamics over a fixed 100ms interval util
 ### Fans & Pumps Output
 Two MOSFET-controlled outputs are available for driving the cooling fan and coolant pump. These are controlled through software feedback loops that monitor thermistor temperature readings. When temperature increases beyond a target setpoint, fan or pump duty cycle increases proportionally. When temperatures fall below defined limits, duty cycle is reduced. This provides automatic thermal regulation for the accumulator or power electronics cooling loop.
 
-### Speaker Output
+### Ready to Drive Sound
 
 **Authors: Dylan Tran, Anushree Godbole**
 
-Audio signaling is performed using a PWM output connected to a low-pass filter and to an amplifier, which drives the speaker. This is used to produce a tone for the Ready to Drive Sound (RTDS).
+Audio signaling is performed using a PWM output connected to a low-pass filter and amplifier, which drives the tactile transducer. This is used to produce a tone for the Ready to Drive Sound (RTDS). A tactile transducer was selected in place of the conventional speaker to save space on the car. The tactile transducer is mounted on the car's aerobody, which acts as a sound-radiating element. 
 
-The speaker system ensures the car meets FSAE safety requirements for audible signaling before the drivetrain engages.
+The RTDS system ensures the car meets FSAE safety requirements for audible signaling before the drivetrain engages.
 
-The Ready to Drive Sound is a continuous beep lasting 1–3 seconds, triggered during the vehicle startup sequence.
+The Ready to Drive Sound is a continuous tone lasting 1–3 seconds **(EV.9.7.2)**, triggered during the vehicle startup sequence.
 
 **Testing Results:**
-Testing was performed at 12V with the potentiometer maxed out to ensure compliance with the **80dB @ 2m** requirement **(EV.9.7 and IN.10.3).** Tests were conducted in a quiet, closed room.
+Testing was performed by gradually increasing the supply voltage to 24 V and setting the amplifier potentiometer to its maximum position to verify compliance with the **80dB @ 2m** requirement **(EV.9.7 and IN.10.3).**
 
-| Distance | Recorded Level | Voltage | Status |
-| :--- | :--- | :--- | :--- |
-| **1 meter** | 101 dB | ~8.9V | **PASS** |
-| **2 meters** | 94 dB | ~8.9V | **PASS** |
+Testing was performed in two rounds. In the first round, a standalone Teensy 4.1, low-pass filter, amplifier, and the tactile transducer was mounted directly on KiloZott's aerobody (in ELF). The sound level was measured using a smartphone sound meter application, which recorded a peak sound level of 95 dB at a distance of 2 meters and an average sound level of approximately 90 dB over a 30-second period. During this test, tones ranging from 1 Hz to 1500 Hz were played in a continuous loop.
 
-*Note: A voltage drop to ~8.9V was observed during the 3-second pulse; however, the decibel output remained well above the required threshold.*
+In the second round of testing, the components (Teensy 4.1, low-pass filter, and amplifier) were already integrated on Safety Board and CCM, which were harnessed together for testing. Since MegaZott's aerobody was not yet available, a metal sheet was used as the mounting surface during this test in ECT. An exact sound pressure level was not recorded during the second test. Subjectively, the output volume was comparable to that measured during the first test, which exceeded the 80 dB requirement at 2 meters. 
 
+Based on testing results, the final RTDS implementation uses a 1300 Hz tone played for 3 seconds.
+
+| Measurement Distance | Sound Level | Voltage | Status |
+| :---     | :---           | :---    | :---   |  
+| 2 meters | 95 dB | ~24V | **PASS** |
 ---
-
 ## Analog I/O
 
 ### Brake System Encoder
