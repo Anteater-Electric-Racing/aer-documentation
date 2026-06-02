@@ -12,13 +12,15 @@ The brake light is driven as a digital output that activates based on braking co
 - Other system-defined braking conditions are met
 The output is typically a high-side digital drive that activates the physical brake lamp in accordance with FSAE regulations.
 
-### WheelSpeed Sensors (Front) Input
-Front wheel speed sensors are hall-effect pickups producing a square-wave digital signal proportional to wheel rotation. The frequency of the pulses corresponds to wheel speed, allowing RPM to be computed from:
-- The frequency of the input pulses
-- The known number of sensor teeth or magnets
-- Wheel circumference and drivetrain ratios
+### Wheel Speed Sensors (WSS) Input
 
-From this, speed and wheel rotational dynamics can be calculated for traction control, odometry, telemetry, and dynamic vehicle control.
+**Author: Dylan Tran**
+
+Wheel speed sensors on all four wheels are hall-effect pickups producing a square-wave digital signal proportional to wheel rotation. Hardware interrupts trigger on the falling edge of these pulses to increment dedicated counters for each wheel.
+
+This system ensures the vehicle can accurately monitor individual wheel speeds, allowing for traction control, odometry, telemetry, and dynamic vehicle control.
+
+The firmware computes wheel rotational dynamics over a fixed 100ms interval utilizing the accumulated pulse count, the number of sensor teeth, and the wheel circumference.
 
 ### Fans & Pumps Output
 Two MOSFET-controlled outputs are available for driving the cooling fan and coolant pump. These are controlled through software feedback loops that monitor thermistor temperature readings. When temperature increases beyond a target setpoint, fan or pump duty cycle increases proportionally. When temperatures fall below defined limits, duty cycle is reduced. This provides automatic thermal regulation for the accumulator or power electronics cooling loop.
