@@ -34,6 +34,9 @@ Using the optocouplers to maintain separation, that signal is fed to the teensy 
 
 Additionally, information on TS voltage, accumulator voltage, and error data are being sent over CANBUS to the CCM. This requires two teensy pins and utilizes a CAN transciever module.
 
+Two thermistors are also located on the LV side in order to stop the precharge sequence if the temperature is too high, which may be indicatative of a failure in the hardware. A formula relating the temperature to the ADC reading across the thermistors are used in order to properly monitor the temperature of the board.
+
+
 ## Connecting Everything and Testing
 
 Setting up the PCC can be confusing, and since it deals directly with accumulator voltage levels, it is important to understand how the wiring and connections work. Each of the connectors and what each pin is for are as follows:
@@ -110,6 +113,8 @@ As mentioned in HV, the PCC is constantly reading the accumulator voltage and tr
 `PrechargeState getPrechargeState()`: Returns the current precharge state (undefined, standby, precharge, online, or error).
 
 `getPrechargeError()`: Returns current error information as an error code.
+
+`checkSafeTemperature()`: Checks for the temperature of the precharge circuit through two thermistors located on the board. Sets precharge start to STATE_DISCHARGE if the temperature threshold is exceeded during precharge.
 
 ### gpio.cpp
 
