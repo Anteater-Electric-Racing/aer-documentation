@@ -1,4 +1,4 @@
-Authors: Adam Wu, Anna Lee
+Authors: Adam Wu, Anna Lee, Anay Shiledar
 # Pre-Charge Circuit
 
 ---
@@ -75,12 +75,13 @@ Finally, we need to connect the PCC to the relays, so it can control them and op
 
 ### General Overview
 
-As mentioned in HV, the PCC is constantly reading the accumulator voltage and tractive system voltage and printing them to the serial monitor. As it does so, it transitions between four possible states: **STANDBY**, **PRECHARGE**, **ONLINE**, and **ERROR**.
+As mentioned in HV, the PCC is constantly reading the accumulator voltage and tractive system voltage and printing them to the serial monitor. As it does so, it transitions between five possible states: **STANDBY**, **PRECHARGE**, **ONLINE**, **CHARGING**, and **ERROR**.
 
-1. STANDBY (`void standby()`): The initial/idle state of the PCC. Waits for a stable shutdown circuit (SDC). Opens accumulator isolation relays (AIR) and precharge relay. If the accumulator voltage is greater than or equal to the minimum voltage for the shutdown circuit (`PCC_MIN_ACC_VOLTAGE`), transitions into the PRECHARGE state.
-2. PRECHARGE (`void precharge()`): Closes AIR- and precharge relay. Monitors precharge progress, which is a function of the tractive system voltage and accumulator voltage. If the precharge progress is completed (`prechargeProgress >= PCC_TARGET_PERCENT`), checks if the target percentage was reached too quickly. If so, transitions into the ERROR state. Otherwise, transitions into the ONLINE state. If the precharge is too slow, it will also transition into the ERROR state.
-3. ONLINE (`void running()`): The status that indicates that precharge has safely and successfully completed. Closes AIR+ to connect accumulator (ACC) to tractive system (TS) and opens precharge relay.
-4. ERROR (`void errorState()`): The PCC error status. Opens AIRs and precharge relay.
+1. STANDBY (`void standby()`): The initial/idle state of the PCC. Waits for a stable shutdown circuit (SDC). Opens accumulator isolation relays (AIR) and precharge relay. If the accumulator voltage is greater than or equal to the minimum voltage for the shutdown circuit (`PCC_MIN_ACC_VOLTAGE`), transitions into the PRECHARGE state. Also transitions into PRECHARGE if the BMS reports that charger safety is active (`CAN_IsChargerSafetyActive()`).
+2. PRECHARGE (`void precharge()`): Closes AIR- and precharge relay. Monitors precharge progress, which is a function of the tractive system voltage and accumulator voltage. If the precharge progress is completed (`prechargeProgress >= PCC_TARGET_PERCENT`), checks if the target percentage was reached too quickly. If so, transitions into the ERROR state. Otherwise, transitions into the CHARGING state if the BMS reports charger safety is active, or the ONLINE state if not. If the precharge is too slow, it will also transition into the ERROR state.
+3. ONLINE (`void running()`): The status that indicates that precharge has safely and successfully completed. Closes AIR+ to connect accumulator (ACC) to tractive system (TS) and opens precharge relay. If the BMS reports that charger safety becomes active (`CAN_IsChargerSafetyActive()`), transitions into the CHARGING state.
+4. CHARGING (`void charging()`): The state entered when the car is being charged by an external charger connected to the BMS. Keeps AIRs closed and periodically prints charger box data received from the BMS (pack voltage, charge current limit, rolling counter) to the serial monitor. Returns to STANDBY when the BMS clears the charger safety flag, and to DISCHARGE if accumulator voltage falls below `PCC_MIN_ACC_VOLTAGE`. Transitions into ERROR if no BMS charger status CAN frame has been received within `BMS_CAN_TIMEOUT_MS` (1500 ms), setting `ERR_BMS_CAN_TIMEOUT`.
+5. ERROR (`void errorState()`): The PCC error status. Opens AIRs and precharge relay.
 
 `epoch` refers to system time (?)
 
@@ -100,7 +101,7 @@ As mentioned in HV, the PCC is constantly reading the accumulator voltage and tr
 
 `prechargeTask(void *pvParameters)`: Handles the state machine and status updates.
 
-`void standby()`, `void precharge()`, `void running()`, `void errorState()`: See General Overview.
+`void standby()`, `void precharge()`, `void running()`, `void charging()`, `void errorState()`: See General Overview.
 
 `float getTSVoltage()`: Gets the tractive system voltage.
 
@@ -116,7 +117,25 @@ Initializes GPIO pins (shutdown control pin, accumulator pin, tractive system pi
 
 ### can.cpp
 
-CAN communication.
+Handles CAN bus communication on `CAN2` at 500 kbps: transmits PCC telemetry to the CCM and receives charger box data from the BMS. Two BMS frames are filtered in via the FIFO (everything else is rejected): the charger status frame (`BMS_CHARGER_STATUS_CAN_ID = 0x185`) and the charger command frame (`BMS_CHARGER_CMD_CAN_ID = 0x306`). Incoming frames are drained on a dedicated FreeRTOS task that runs every 2 ms, independent of the precharge state machine. Decoded charger data is held in a static `ChargerData` struct and exposed through accessor functions that use `taskENTER_CRITICAL`/`taskEXIT_CRITICAL` for atomic reads.
+
+`CAN_Init()`: Initializes the CAN2 peripheral, sets the baud rate, configures FIFO filters for the BMS charger status (`0x185`) and command (`0x306`) IDs, and creates the `canTask`.
+
+`CAN_SendPCCMessage(state, errorCode, accumulatorVoltage, tsVoltage, prechargeProgress)`: Packs the current PCC state, error code, accumulator voltage, tractive system voltage, and precharge progress into a CAN frame and transmits it on the PCC CAN ID (`0x222`). Called once per precharge task cycle.
+
+`canTask(void *pvParameters)`: Dedicated FreeRTOS task that calls `pollMessages()` on a 2 ms period to drain the CAN rx FIFO.
+
+`pollMessages()`: Reads any pending frames from the rx FIFO. On a charger status frame (`0x185`), decodes the safety flag from bit 3 of byte 6 (`CHARGER_SAFETY_MASK = 0x08`) and stamps the last-received tick. On a charger command frame (`0x306`), and only while charger safety is active, decodes the pack voltage (bytes 0–1, scaled by 0.1 V), the charge current limit (byte 2, scaled to A), and the BMS rolling counter (byte 6).
+
+`bool CAN_IsChargerSafetyActive()`: Returns whether the BMS most recently reported charger safety as active. Used by the state machine to enter and exit the CHARGING state.
+
+`TickType_t CAN_GetBMSLastRxTime()`: Returns the FreeRTOS tick at which the last BMS charger status frame was received. Used by the CHARGING-state watchdog to detect a BMS CAN timeout (`BMS_CAN_TIMEOUT_MS`).
+
+`float CAN_GetChargerVoltage()`: Returns the last pack voltage reported by the BMS in the charger command frame.
+
+`float CAN_GetChargerCCL()`: Returns the last charge current limit reported by the BMS.
+
+`uint8_t CAN_GetChargerCounter()`: Returns the BMS rolling counter, used to verify that fresh charger command frames are still being received.
 
 # Improvements + next steps
 
