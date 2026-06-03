@@ -1,29 +1,42 @@
-Author: Sebastian Ethan Basa
+# Traction Control Module 
+ 
+Author: Atharva Rao
+ 
+## Purpose
+ 
+The traction control module prevents rear-wheel spin during acceleration by reducing the torque request sent to the inverter. It compares front (undriven) wheel speeds to the motor-derived rear wheel speed to detect slip, then applies a PID correction when slip exceeds a defined ratio.
+ 
+---
+ 
+## Control Method
+ 
+### Slip Calculation
+ 
+Slip is computed in `VCU_GetSlip()` using motor eRPM as the driven wheel speed reference, which is calculated through pole pairs and gear ratio:
+ 
+```
+motor_speed = (eRPM / POLE_PAIRS) / GEAR_RATIO
+slip = (motor_speed − front_wheel_avg) / front_wheel_avg
+```
+ 
+The calculation also consists of an additional step: if the two front wheel speeds differ by more than `MAX_SPEED_DIFF` (35 RPM), the lower reading is used instead of the average to guard against a faulty sensor pulling the wheel speed reference high.
+ 
+If the front wheel average falls below `MIN_SPEED` (5 RPM) — i.e., the car is nearly stationary, the function returns the target slip ratio directly, avoiding a division-by-near-zero.
+ 
+### PID Torque Reduction
+ 
+The PID controller targets `SLIP_RATIO` (0.10) as its setpoint. Its output is a multiplicative reduction applied to the driver's requested torque:
+ 
+```
+target = requested_torque − (requested_torque × PID_output)
+```
+This means that the correction scales with the driver's pedal demand. For example, a large torque request gets a larger absolute cut when the calculated slip is high.
 
-# Traction Control Module Overview
+Note: The PID output is constrained so the torque cannot be increased beyond what the driver requested (This is implemented to abide by the rules).
 
-This module implements a basic traction‑control strategy intended to limit excessive wheel slip during acceleration. The approach uses front‑wheel speeds as an estimate of vehicle speed and compares them to the driven rear‑wheel speeds to detect slip. When slip exceeds a defined threshold, the system reduces the requested torque using a PID controller.
-
-### Purpose  
-The goal of this traction‑control logic is to prevent rear‑wheel spin by dynamically adjusting torque output. By monitoring the difference between front and rear wheel speeds, the system attempts to maintain the driven wheels within an acceptable slip range, improving vehicle stability and acceleration performance.
-
-### Control Method  
-The algorithm calculates slip using the ratio:
-
-slip = (rear wheel speed average - front wheel speed average)/(front wheel speed average)
-
-A PID controller is configured to reduce torque when slip exceeds a predefined threshold. The PID output directly modifies the torque request sent to the powertrain, with proportional control currently being the primary active term.
-
-### System Behavior  
-- Front wheel speeds serve as a reference for true vehicle speed.  
-- Rear wheel speeds represent the driven wheels, where slip is expected to occur.  
-- When slip rises above the threshold, the PID controller computes a corrective torque reduction.  
-- The loop continuously monitors wheel speeds and updates torque in real time.
-
-### Current Limitations  
-This implementation is an early prototype and is not yet suitable for on‑vehicle use. Key limitations include:  
-- The PID controller is re‑initialized on every loop iteration, preventing proper integral and derivative behavior.  
-- The control loop runs indefinitely without timing control, blocking other system tasks and preventing consistent update rates.  
-- The slip threshold is set unrealistically high for effective traction control.  
-- Wheel‑speed inputs are unfiltered, making the system sensitive to noise.  
-- No safety checks or torque‑limiting constraints are implemented beyond the raw PID output.
+## Current Limitations
+ 
+- PID gains (`TC_KP`, `TC_KI`, `TC_KD`) are placeholder values and require tuning.
+- The target slip ratio (0.10) might require tweaking for effective traction control.
+- Testing is yet to be done to ensure everything works well.
+ 
