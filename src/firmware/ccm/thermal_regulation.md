@@ -1,5 +1,5 @@
 # Thermal Regulation Module
-Author: [Your Name]
+Author: [Pranav Rayapureddi]
 
 ## Purpose
 Maintain safe operating temperatures for the coolant pumps and radiator fan using closed-loop PID control, adjusting PWM duty cycles in response to live temperature data before hardware thresholds are reached.
