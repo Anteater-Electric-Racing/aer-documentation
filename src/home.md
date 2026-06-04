@@ -1,6 +1,6 @@
-**Version: w26.1.1**
+**Version: s26.1.6**
 
-*Latest updates made on 3/20/2026*
+*Latest updates made on 6/5/2026*
 # AER Embedded Systems Documentation
 Welcome to the software and systems doc page for Anteater Electric Racing.
 This site is the shared starting point for onboarding, architecture, and implementation details across the team.
