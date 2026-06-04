@@ -1,5 +1,5 @@
 # Thermal Regulation Module
-Author: [Pranav Rayapureddi]
+Author: Pranav Rayapureddi
 
 ## Purpose
 Maintain safe operating temperatures for the coolant pumps and radiator fan using closed-loop PID control, adjusting PWM duty cycles in response to live temperature data before hardware thresholds are reached.
@@ -11,6 +11,8 @@ Maintain safe operating temperatures for the coolant pumps and radiator fan usin
 `thermal_regulate()` runs three independent PID controllers — one per actuator — against a shared temperature input. Each controller returns a normalized scalar in [0.0, 1.0] representing cooling effort, which maps to a PWM duty cycle.
 
 ### `computePID()` Behavior
+
+computePID() is a custom PID function designed specifically for thermal regulation.
 
 | Term | Formula |
 |---|---|
