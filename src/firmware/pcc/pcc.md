@@ -34,8 +34,38 @@ Using the optocouplers to maintain separation, that signal is fed to the teensy 
 
 Additionally, information on TS voltage, accumulator voltage, and error data are being sent over CANBUS to the CCM. This requires two teensy pins and utilizes a CAN transciever module.
 
+---
+
+### Temperature Safety Check
+**Author: Lawrence Chan**
+
 Two thermistors are also located on the LV side in order to stop the precharge sequence if the temperature is too high, which may be indicatative of a failure in the hardware. A formula relating the temperature to the ADC reading across the thermistors are used in order to properly monitor the temperature of the board.
 
+The thermistors are wired as shown in the schematic below:
+![Thermistor Schematic](../../images/firmware/thermistor_schem.png)
+
+#### Relevant methods:
+
+`checkSafeTemperature()`: Checks for the temperature of the precharge circuit through two thermistors located on the board. Sets precharge start to STATE_DISCHARGE if the temperature threshold is exceeded during precharge.
+
+The following equation was used to calculate the temperature of the thermistors from the ADC reading as measured by the Teensy:
+
+![Equation for Thermistor Temperature](../../images/firmware/thermistor_eq.png)
+![Thermistor Graph](../../images/firmware/thermistor_graph.png)
+
+Relevant constants for the equation:
+
+`T0 (Celsius) = 26`
+
+`R0 = 5280`
+
+`BETA = 3880`
+
+`Resistor Divider Resistor = 6800`
+
+`Threshold Temperature (Celsius) = 70`
+
+---
 
 ## Connecting Everything and Testing
 
@@ -113,8 +143,6 @@ As mentioned in HV, the PCC is constantly reading the accumulator voltage and tr
 `PrechargeState getPrechargeState()`: Returns the current precharge state (undefined, standby, precharge, online, or error).
 
 `getPrechargeError()`: Returns current error information as an error code.
-
-`checkSafeTemperature()`: Checks for the temperature of the precharge circuit through two thermistors located on the board. Sets precharge start to STATE_DISCHARGE if the temperature threshold is exceeded during precharge.
 
 ### gpio.cpp
 
