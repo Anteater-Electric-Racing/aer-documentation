@@ -13,8 +13,8 @@ src/
     peripherals                    // handles low level drivers and wrappers for communication protocols
     utils                           // useful constants
     vehicle/
-        comms                       //communciation handler over CAN
-        controls                    //custom algorithms designed for specifc use cases
+        comms                       //communication handler over CAN
+        controls                    //custom algorithms designed for specific use cases
         devices                     //logic level interface with peripherals and vehicle state
 ```
 - New Inverter: DTI HV550, new motor: EMRAX 228 MV
