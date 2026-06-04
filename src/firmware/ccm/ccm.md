@@ -25,4 +25,5 @@ Current Version: 2.0
 This board has planned improvments for a version (3.0)
 Some new features include
  - More sensors inputs (Tire Temp, Brake Temp, Steering Wheel Angle)
- - Input for Inverter Keyswitch (KL15)
+ - Switching to a custom dev board
+ - Bare metal system software and drivers
