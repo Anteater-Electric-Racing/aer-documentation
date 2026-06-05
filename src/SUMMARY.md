@@ -14,6 +14,7 @@
         - [PID Controller](./firmware/ccm/pid.md)
             - [Traction Control](./firmware/ccm/traction_control.md)
             - [Launch Control](./firmware/ccm/launch_control.md)
+            - [Thermal Regulation](./firmware/ccm/thermal_regulation.md)
         - [Regen Braking](./firmware/ccm/RegenBraking.md)
     - [Tasks & Scheduling](./firmware/ccm/threads.md)
         - [CAN Interrupt](./firmware/ccm/can_interrupt.md)
