@@ -12,7 +12,7 @@ The subsystem links several internal microcontroller blocks into an automated pi
 
 1. **PIT (Periodic Interrupt Timer):** Fires hardware trigger signals at a fixed rate of 1kHz. PIT0 and PIT1 are intentionally phase-offset by 50 microseconds to stagger conversion waves and prevent electrical noise or power dips from corrupting consecutive samples.
 2. **XBAR (Cross-bar Switch):** Routes the hardware pulses directly from the PIT timers to the ADC_ETC hardware trigger slots without utilizing interrupt service routines.
-3. **ADC_ETC (ADC Error To Control):** Configured to manage two distinct conversion chains containing 4 sensor channels each. Upon receiving an XBAR pulse, it automates channel rotation, commands the hardware ADC to convert the pins, and sequences results into a dense register window.
+3. **ADC_ETC (ADC External Trigger Control):** Configured to manage two distinct conversion chains containing 4 sensor channels each. Upon receiving an XBAR pulse, it automates channel rotation, commands the hardware ADC to convert the pins, and sequences results into a dense register window.
 4. **DMA & Ping-Pong Buffers:** As soon as the second chain finishes converting, the DMAMUX signals the DMA controller. The DMA engine executes a minor-loop copy, moving the entire 12-word data frame out of the ADC_ETC registers and dropping it into one half of a dual ping-pong buffer in RAM.
 
 ## Memory Management & Data Processing
