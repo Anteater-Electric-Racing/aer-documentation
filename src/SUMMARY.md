@@ -15,6 +15,7 @@
 - [CCM](./firmware/ccm/ccm.md)
     - [Peripherals](./firmware/ccm/peripherals.md)
         - [APPS](./firmware/ccm/APPS.md)
+        - [ADC Interrupt](./firmware/ccm/adc_interrupt.md)
     - [Vehicle Control](./firmware/ccm/vehicle.md)
         - [Traction Control](./firmware/traction_control.md)
         - [Launch Control](./firmware/ccm/launch_control.md)
