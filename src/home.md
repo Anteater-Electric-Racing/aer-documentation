@@ -1,9 +1,17 @@
-**Version: w26.1.1**
+**Version: s26.1.6**
 
-*Latest updates made on 3/20/2026*
+*Latest updates made on 6/5/2026*
 # AER Embedded Systems Documentation
 Welcome to the software and systems doc page for Anteater Electric Racing.
 This site is the shared starting point for onboarding, architecture, and implementation details across the team.
+
+
+## UPDATE for Spring Quarter 2026:
+
+[[KZ to MZ changes]](./firmware/mzchanges.md)
+
+Currently pushing to make FSAE competition in June 2026.
+
 ### Start Here:
 - New to the project? Begin with onboarding:
 	- [Data Acquisiton Onboarding](./dac/onboarding.md)
@@ -12,13 +20,6 @@ This site is the shared starting point for onboarding, architecture, and impleme
 	- [System Architecture](./firmware/sysarchitecture.md)
 
 ## Subteam Split
-#### Data Acquisition (DAC)
-The DAC side focuses on telemetry transport, storage, visualization, and simulation tooling.
-- CAN ISO-TP telemetry ingestion and decoding [(*CAN docs*)](./dac/can/can.md)
-- MQTT broker startup and configuration [(*MQTT docs*)](./dac/mqtt/mqtt.md)
-- Telemetry fan-out to MQTT and TDengine [(*Send docs*)](./dac/send/send.md)
-- Dashboard + Raspberry Pi telemetry services
-- Simulator efforts (Godot, inverter simulation, RL) [(*Simulator docs*)](./dac/simulator/simulator.md)
 
 #### Firmware
 
@@ -28,14 +29,21 @@ Firmware owns embedded control and safety-critical behavior on vehicle modules.
 - FreeRTOS task scheduling and CAN message flow [(*Tasks & Scheduling*)](./firmware/ccm/threads.md)
 - Vehicle state machine, fault handling, power limiting, and wheel-speed sensing
 
+#### Data Acquisition (DAC)
+The DAC side focuses on telemetry transport, storage, visualization, and simulation tooling.
+- CAN ISO-TP telemetry ingestion and decoding [(*CAN docs*)](./dac/can/can.md)
+- MQTT broker startup and configuration [(*MQTT docs*)](./dac/mqtt/mqtt.md)
+- Telemetry fan-out to MQTT and TDengine [(*Send docs*)](./dac/send/send.md)
+- Dashboard + Raspberry Pi telemetry services
+- Simulator efforts (Godot, inverter simulation, RL) [(*Simulator docs*)](./dac/simulator/simulator.md)
+
+
 ## Current Focus Areas
 
-- Transitioning codebase to comp car with new Motor + Inverter
-- CAN interrupt robustness and queue overflow validation
-- Shock sensor integration and calibration for suspension telemetry
+- Tuning new Inverter and Motor Setup
+- Thermal tuning to allow for maximum motor utilization
 - Launch control tuning and slip-ratio based torque shaping
-- Power limit behavior around rule thresholds and low-SOC derating
-- Continued simulator expansion and PCC subsystem documentation
+- Focus on tech compliance as per FSAE rules
 
 ## Contributing to Docs
 This site is built with `mdBook` and Mermaid support.

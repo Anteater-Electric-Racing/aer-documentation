@@ -21,7 +21,7 @@ flowchart BT
             BMS(Orion BMS 2)
             BC(Battery Charger)
             PCC(PCC - Teensy 4.0)
-            INV(OMNI Intervter)
+            INV(DTI HV550)
             RPI(Raspberry Pi)
             MOTOR(Motor) === INV
         end
