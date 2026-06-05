@@ -1,5 +1,5 @@
 # PID Controller Module
-Author: [Your Name]
+Author: Pranav Rayapureddi
 
 ## Purpose
 A generic, reusable PID controller for any closed-loop control application. Integral windup is clamped to configurable limits set at initialization.
@@ -19,7 +19,7 @@ A generic, reusable PID controller for any closed-loop control application. Inte
 
 - `dt` is computed from FreeRTOS tick counts via `xTaskGetTickCount() / configTICK_RATE_HZ`.
 - Anti-windup: integral is hard-clamped each iteration to the limits set in `pidConfig()`.
-- Output is unbounded — the caller is responsible for clamping to actuator limits.
+- Caller is responsible for clamping to actuator limits.
 
 ---
 
