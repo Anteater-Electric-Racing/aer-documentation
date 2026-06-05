@@ -3,76 +3,80 @@ Authors: Anushree Godbole, Kenneth Dao
 ## Overview
 The Watchdog Timer (WDT) subsystem is implemented to ensure the reliable operation of critical vehicle control software. Its primary function is to detect software stalls or timing violations in key tasks and enforce recovery through a system reset.
 
-This implementation monitors the execution health of three safety-critical subsystems:
-- Brake System Encoder (BSE)
-- Accelerator Pedal Position Sensors (APPS)
-- **Traction Control (planned, not yet implemented)**
+This implementation operates at the thread level and monitors the execution health of four critical threads:
+- ADC Thread
+- Main Thread
+- VCU Thread
+- CAN Thread
 
-If any subsystem fails to update within a defined time threshold, the watchdog is no longer serviced, allowing the microcontroller’s hardware watchdog to reset the system.
+If any thread fails to update within a defined threshold, the watchdog is no longer fed, allowing the Teensy's hardware watchdog to reset the system.
 
 ## System Architecture
+The watchdog does not maintain persistent fault states; all checks are performed on live thread timing data during each evaluation cycle.
+
 The WDT system consists of:
 1. Hardware Watchdog Peripheral (via `Watchdog_t4`)
-2. FreeRTOS Monitoring Task (`WDT_Update_Task`)
+2. FreeRTOS Monitoring Task (`threadWDT`)
 3. Timing Tracking Variables (`*_last_run_tick`)
-4. Bitmask-Based Fault Detection
+4. Bitmask-Based Overdue Thread Detection
 
-Each monitored subsystem updates a shared timestamp (`*_last_run_tick`) whenever it executes successfully. The watchdog task periodically checks these timestamps to determine system health.
+Each monitored thread updates its own timestamp (`*_last_run_tick`) whenever it executes successfully. The watchdog task periodically checks these timestamps to determine whether all critical threads are executing as expected.
 
-## Fault Detection Strategy
-The system uses a time-based fault detection approach:
-- Each subsystem must update within a defined fault threshold 
-- The watchdog task runs periodically to evaluate subsystem health
-- A subsystem is considered faulty if its update interval exceeds the threshold
+## Overdue Thread Detection Strategy
+The system uses a time-based detection approach:
+- Each thread must update within a defined threshold 
+- The watchdog task runs periodically to evaluate thread health
+- A thread is considered overdue if the elapsed time since its last heartbeat exceeds the threshold
 
-Fault states are internally represented using a bitmask, allowing multiple subsystem failures to be tracked simultaneously and enabling easy scalability for additional monitored components.
+During each watchdog evaluation cycle, a bitmask is used to identify which threads are overdue. This allows multiple thread failures to be tracked simultaneously and enables easy scalability for additional monitored components.
 
-## Fault Representation
+## Bitmask Representation
 
-Faults are encoded using a bitmask:
+Overdue threads are encoded using a bitmask:
 
-| Subsystem | Bit | Value |
+| Thread | Bit | Value |
 |----------|-----|------|
-| BSE      | 0   | 0b01 |
-| APPS     | 1   | 0b10 |
+| ADC      | 0   | 0b0001 |
+| Main     | 1   | 0b0010 |
+| VCU      | 2   | 0b0100 |
+| CAN      | 3   | 0b1000 |
 
-- `WDT_REQUIRED_MASK = 0b00` represents no flags and a fully healthy system  
-- If any fault bit is set, the watchdog is not serviced, allowing timeout  
+- `WDT_REQUIRED_MASK = 0b0000` indicates that no threads are overdue and the system is healthy  
+- If any thread is marked as overdue, the watchdog is not fed.
 
 ## Timing Relationship: Detection vs. Reset
 
 The watchdog system uses two distinct timing parameters that serve different purposes:
 
-- **100 ms (Fault Threshold for APPS and BSE):**  
-  Defines how frequently the system checks the health of the subsystems and detects timing violations  
+- **100 ms (Thread Timing Threshold):**  
+  Maximum allowable time between thread updates before a thread is considered overdue.
 
-- **1 second (Watchdog Timeout):**  
-  Defines how long the system can go without being serviced before the hardware watchdog triggers a reset  
-
-A fault must persist across multiple monitoring cycles before resulting in a watchdog timeout, ensuring both responsiveness and stability.
+- **1 second (Hardware Watchdog Timeout):**  
+  Defines how long the system can go without being fed before the hardware watchdog triggers a reset of the Teensy 4.1.
 
 ## Watchdog Behavior
 
-The watchdog operates on a strict all-systems-healthy requirement:
+The watchdog operates on a strict all-threads-healthy requirement:
 
-- **Healthy system:**  
-  All monitored subsystems update within their thresholds → watchdog is continuously serviced  
+- **Healthy System:**  
+  All monitored threads update within their thresholds → watchdog is fed continuously   
 
-- **Fault condition:**  
-  One or more subsystems exceed their timing threshold → watchdog is not serviced  
+- **Overdue Thread Detected:**  
+  One or more threads exceed their timing threshold → watchdog is not fed
 
-- **System response:**  
-  If the watchdog is not serviced within its configured timeout (1 second), the hardware automatically resets the microcontroller  
+- **System Response:**  
+  If the watchdog is not fed within its configured timeout (1 second), the hardware automatically resets the Teensy 4.1
 
 This ensures that any persistent software failure results in a full system restart.
 
 
-## Fault Handling & Diagnostics
+## Diagnostics and Logging
 
-If a fault is detected, the system logs the condition via serial output:
+When an overdue thread is detected, the watchdog logs the condition via serial output:
 
 | Condition | Message |
 |----------|--------|
-| BSE overdue | "WDT: BSE update overdue" |
-| APPS overdue | "WDT: APPS update overdue" |
-| Both overdue | "WDT: BSE and APPS updates overdue" |
+| ADC Thread overdue | "WDT: ADC thread overdue" |
+| CAN Thread overdue | "WDT: CAN thread overdue" |
+| Main Thread overdue | "WDT: Main thread overdue" |
+| VCU Thread overdue | "WDT: VCU thread overdue" |
