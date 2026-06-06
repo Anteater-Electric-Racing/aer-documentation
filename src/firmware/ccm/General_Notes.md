@@ -1,5 +1,5 @@
 # ADC Polling to Interrupts
-
+By Wilson Nguyen
 ## Overview
 
 Currently, the CPU is polling the ADCs on the Teensy, which blocks the CPU until the ADC task is done. This is synchronous I/O. However, this wastes CPU compute and power because while the CPU is waiting for the I/O event to finish, it is not making progress on other tasks.
