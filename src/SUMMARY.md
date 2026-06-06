@@ -20,6 +20,7 @@
         - [CAN Interrupt](./firmware/ccm/can_interrupt.md)
         - [Watchdog Timer](./firmware/ccm/wdt.md)
         - [CAN Timeout](./firmware/ccm/can_timeout.md)
+        - [CAN Polling->Interrupts](./firmware/ccm/General_Notes.md)
     - [Telemetry](./firmware/ccm/telemetry.md)
     - [Power Limiting](./firmware/ccm/power_limits.md)
     - [Thermal Derating](./firmware/ccm/thermal_derate.md)
